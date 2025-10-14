@@ -44,9 +44,6 @@
       --border-radius: 16px;
       --box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
       --transition: all 0.3s ease;
-      --header-height: 70px;
-      --sidebar-width: 280px;
-      --sidebar-collapsed-width: 80px;
     }
 
     .dark-mode {
@@ -63,10 +60,6 @@
       box-sizing: border-box;
     }
 
-    html {
-      font-size: 16px;
-    }
-
     body {
       font-family: 'Poppins', sans-serif;
       background: var(--body-bg);
@@ -74,35 +67,11 @@
       display: flex;
       min-height: 100vh;
       transition: var(--transition);
-      line-height: 1.6;
-    }
-
-    /* Mobile Menu Toggle */
-    .mobile-menu-toggle {
-      display: none;
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      z-index: 1100;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      width: 50px;
-      height: 50px;
-      font-size: 1.5rem;
-      cursor: pointer;
-      box-shadow: var(--box-shadow);
-      transition: var(--transition);
-    }
-
-    .mobile-menu-toggle:hover {
-      transform: scale(1.05);
     }
 
     /* Side navigation bar */
     .sidenav {
-      width: var(--sidebar-width);
+      width: 280px;
       background: var(--sidebar-bg);
       padding: 25px 0;
       color: white;
@@ -113,8 +82,6 @@
       transition: var(--transition);
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
     }
 
     .sidenav-header {
@@ -146,7 +113,6 @@
       border-radius: 8px;
       margin: 8px 0;
       transition: var(--transition);
-      min-height: 50px; /* Better touch target */
     }
 
     .sidenav a i {
@@ -234,10 +200,9 @@
     /* Main content area */
     .main-content {
       flex: 1;
-      margin-left: var(--sidebar-width);
+      margin-left: 280px;
       padding: 30px;
       transition: var(--transition);
-      width: calc(100% - var(--sidebar-width));
     }
 
     .dashboard-header {
@@ -252,21 +217,19 @@
     .dashboard-title h1 {
       font-weight: 600;
       color: var(--text-primary);
-      font-size: clamp(1.5rem, 4vw, 1.8rem); /* Responsive font size */
+      font-size: 1.8rem;
       margin-bottom: 5px;
-      line-height: 1.3;
     }
 
     .dashboard-title p {
       color: var(--text-secondary);
-      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      font-size: 1rem;
     }
 
     .header-controls {
       display: flex;
       gap: 15px;
       align-items: center;
-      flex-wrap: wrap;
     }
 
     /* Cards */
@@ -274,7 +237,7 @@
       background: var(--card-bg);
       border-radius: var(--border-radius);
       box-shadow: var(--box-shadow);
-      padding: 20px;
+      padding: 25px;
       margin-bottom: 25px;
       transition: var(--transition);
       position: relative;
@@ -293,20 +256,18 @@
       margin-bottom: 20px;
       position: relative;
       z-index: 2;
-      flex-wrap: wrap;
-      gap: 15px;
     }
 
     .card-title {
       font-weight: 600;
-      font-size: clamp(1.1rem, 3vw, 1.2rem);
+      font-size: 1.2rem;
       color: var(--text-primary);
     }
 
     /* Charts container */
     .charts-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
       gap: 25px;
       margin-bottom: 25px;
     }
@@ -316,20 +277,11 @@
       border-radius: var(--border-radius);
       padding: 20px;
       box-shadow: var(--box-shadow);
-      min-height: 300px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .chart-wrapper {
-      flex: 1;
-      position: relative;
     }
 
     canvas {
       width: 100% !important;
-      max-height: 250px !important;
-      height: auto !important;
+      height: 250px !important;
     }
 
     /* Health recommendations */
@@ -397,7 +349,7 @@
 
     /* Buttons */
     .btn {
-      padding: 12px 20px;
+      padding: 12px 24px;
       border: none;
       border-radius: 8px;
       font-weight: 600;
@@ -407,8 +359,6 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      font-size: 0.95rem;
-      min-height: 44px; /* Better touch target */
     }
 
     .btn i {
@@ -442,18 +392,16 @@
       overflow: auto;
       border-radius: var(--border-radius);
       box-shadow: var(--box-shadow);
-      -webkit-overflow-scrolling: touch;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       background: var(--card-bg);
-      min-width: 600px; /* Ensure table doesn't get too narrow */
     }
 
     th, td {
-      padding: 14px 16px;
+      padding: 16px 20px;
       text-align: left;
       border-bottom: 1px solid #e9ecef;
     }
@@ -556,7 +504,7 @@
       padding: 20px;
     }
     
-    /* FIXED: Improved circular progress with "Air Quality" label */
+    /* UPDATED: Improved circular progress with "Air Quality" label */
     .circular-progress {
       position: relative;
       width: 220px;
@@ -615,8 +563,6 @@
       border-radius: 12px;
       font-size: 1.1rem;
       backdrop-filter: blur(5px);
-      flex-wrap: wrap;
-      text-align: center;
     }
 
     .dust-level i {
@@ -843,6 +789,7 @@
         padding: 0;
       }
 
+      /* Hide all navigation and interactive elements */
       .sidenav, 
       .btn, 
       .history-controls,
@@ -910,25 +857,24 @@
       .pagination {
         display: none !important;
       }
+      
+      /* Ensure no background colors or images interfere */
+      * {
+        background: white !important;
+        color: black !important;
+      }
     }
 
-    /* ========== RESPONSIVE STYLES ========== */
-    
-    /* Large devices (desktops, 1200px and up) */
+    /* Responsive styles */
     @media (max-width: 1200px) {
       .charts-grid {
         grid-template-columns: 1fr;
       }
     }
 
-    /* Medium devices (tablets, 992px and up) */
     @media (max-width: 992px) {
-      :root {
-        --sidebar-width: var(--sidebar-collapsed-width);
-      }
-      
       .sidenav {
-        width: var(--sidebar-collapsed-width);
+        width: 80px;
         padding: 20px 0;
       }
       
@@ -949,39 +895,11 @@
       }
       
       .main-content {
-        margin-left: var(--sidebar-collapsed-width);
+        margin-left: 80px;
         padding: 20px;
-      }
-      
-      .mobile-menu-toggle {
-        display: block;
-      }
-      
-      .sidenav.expanded {
-        width: var(--sidebar-width);
-      }
-      
-      .sidenav.expanded .sidenav-header h2,
-      .sidenav.expanded .sidenav a span,
-      .sidenav.expanded .sidenav-footer span {
-        display: block;
-      }
-      
-      .sidenav.expanded .sidenav a {
-        justify-content: flex-start;
-        padding: 14px 20px;
-      }
-      
-      .sidenav.expanded .sidenav a i {
-        margin-right: 12px;
-      }
-      
-      .main-content.sidebar-expanded {
-        margin-left: var(--sidebar-width);
       }
     }
 
-    /* Small devices (landscape phones, 768px and up) */
     @media (max-width: 768px) {
       .sidenav {
         width: 0;
@@ -989,18 +907,9 @@
         z-index: 1000;
       }
       
-      .sidenav.expanded {
-        width: 280px;
-      }
-      
       .main-content {
         margin-left: 0;
         padding: 15px;
-        width: 100%;
-      }
-      
-      .main-content.sidebar-expanded {
-        margin-left: 0;
       }
       
       .dashboard-header {
@@ -1022,166 +931,6 @@
       .flatpickr-input {
         min-width: unset;
       }
-      
-      .card {
-        padding: 15px;
-      }
-      
-      .main-metric-card {
-        padding: 20px 15px;
-        min-height: 350px;
-      }
-      
-      .circular-progress {
-        width: 160px;
-        height: 160px;
-      }
-      
-      .circular-progress::before {
-        width: 140px;
-        height: 140px;
-      }
-      
-      .progress-value {
-        font-size: 2rem;
-      }
-      
-      .aqi-title {
-        font-size: 1.3rem;
-      }
-      
-      .stat-value {
-        font-size: 1.5rem;
-      }
-    }
-
-    /* Extra small devices (portrait phones, less than 576px) */
-    @media (max-width: 576px) {
-      html {
-        font-size: 14px;
-      }
-      
-      .main-content {
-        padding: 10px;
-      }
-      
-      .dashboard-header {
-        margin-bottom: 20px;
-      }
-      
-      .card {
-        padding: 12px;
-        margin-bottom: 15px;
-      }
-      
-      .charts-grid {
-        gap: 15px;
-      }
-      
-      .chart-container {
-        padding: 15px;
-      }
-      
-      .main-metric-card {
-        grid-template-columns: 1fr;
-        gap: 20px;
-        padding: 15px;
-        min-height: auto;
-      }
-      
-      .circular-progress {
-        width: 140px;
-        height: 140px;
-        margin-bottom: 15px;
-      }
-      
-      .circular-progress::before {
-        width: 120px;
-        height: 120px;
-      }
-      
-      .progress-value {
-        font-size: 1.8rem;
-      }
-      
-      .aqi-title {
-        font-size: 1.2rem;
-        margin-bottom: 15px;
-      }
-      
-      .dust-level {
-        font-size: 1rem;
-        padding: 12px;
-      }
-      
-      .metric-stats {
-        grid-template-columns: 1fr;
-        gap: 10px;
-        margin-top: 15px;
-      }
-      
-      .stat-item {
-        padding: 12px 8px;
-      }
-      
-      .stat-value {
-        font-size: 1.3rem;
-      }
-      
-      .aqi-legend {
-        margin: 15px 0;
-        padding: 12px;
-      }
-      
-      .aqi-status {
-        font-size: 1.1rem;
-      }
-      
-      .btn {
-        padding: 10px 16px;
-        font-size: 0.9rem;
-      }
-      
-      th, td {
-        padding: 10px 12px;
-      }
-    }
-
-    /* Very small devices (less than 400px) */
-    @media (max-width: 400px) {
-      html {
-        font-size: 13px;
-      }
-      
-      .main-content {
-        padding: 8px;
-      }
-      
-      .card {
-        padding: 10px;
-      }
-      
-      .chart-container {
-        padding: 10px;
-      }
-      
-      .circular-progress {
-        width: 120px;
-        height: 120px;
-      }
-      
-      .circular-progress::before {
-        width: 100px;
-        height: 100px;
-      }
-      
-      .progress-value {
-        font-size: 1.5rem;
-      }
-      
-      .aqi-title {
-        font-size: 1.1rem;
-      }
     }
 
     /* Animation for real-time updates */
@@ -1202,7 +951,6 @@
       margin-top: 20px;
       gap: 10px;
       align-items: center;
-      flex-wrap: wrap;
     }
 
     .pagination-btn {
@@ -1213,7 +961,6 @@
       border-radius: 5px;
       cursor: pointer;
       font-weight: 500;
-      min-height: 40px;
     }
 
     .pagination-btn:disabled {
@@ -1237,7 +984,7 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      max-width: min(400px, 90vw);
+      max-width: 400px;
     }
 
     .notification {
@@ -1353,8 +1100,8 @@
       color: white;
       border: none;
       border-radius: 50%;
-      width: 44px;
-      height: 44px;
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1369,25 +1116,9 @@
     .sound-toggle.muted {
       background: var(--secondary);
     }
-    
-    /* Time filter select */
-    .time-filter select {
-      padding: 8px 12px;
-      border: 1px solid #e9ecef;
-      border-radius: 8px;
-      background: var(--card-bg);
-      color: var(--text-primary);
-      font-family: inherit;
-      font-size: 0.9rem;
-    }
   </style>
 </head>
 <body>
-  <!-- Mobile Menu Toggle -->
-  <button class="mobile-menu-toggle" id="mobileMenuToggle">
-    <i class="fas fa-bars"></i>
-  </button>
-
   <div class="sidenav" id="sidenav">
     <div class="sidenav-header">
       <h2><i class="fas fa-wind"></i> BRGY CASIDMAN</h2>
@@ -1417,7 +1148,7 @@
     </div>
   </div>
 
-  <div class="main-content" id="mainContent">
+  <div class="main-content">
     <div class="dashboard-header">
       <div class="dashboard-title">
         <h1>Real-Time Air Quality - Barangay Casidman</h1>
@@ -1447,6 +1178,7 @@
         <div class="card main-metric-card">
           <!-- Left side: AQI Visualization -->
           <div class="aqi-visualization">
+            <!-- UPDATED: Circular progress with "Air Quality" label -->
             <div class="circular-progress" id="progressCircle">
               <div class="progress-content">
                 <div class="progress-value" id="progressValue">0</div>
@@ -1509,9 +1241,7 @@
               </select>
             </div>
           </div>
-          <div class="chart-wrapper">
-            <canvas id="airChart"></canvas>
-          </div>
+          <canvas id="airChart"></canvas>
         </div>
         
         <div class="chart-container">
@@ -1526,9 +1256,7 @@
               </select>
             </div>
           </div>
-          <div class="chart-wrapper">
-            <canvas id="dustChart"></canvas>
-          </div>
+          <canvas id="dustChart"></canvas>
         </div>
       </div>
 
@@ -1667,9 +1395,6 @@
     let notificationSoundEnabled = true;
     let alertAudio = null;
 
-    // Mobile menu state
-    let isMobileMenuOpen = false;
-
     // Initialize date picker
     flatpickr("#dateRangePicker", {
       mode: "range",
@@ -1703,7 +1428,6 @@
     let filteredHistoryData = [];
 
     // DOM Elements
-    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
     const overviewLink = document.getElementById('overviewLink');
     const historyLink = document.getElementById('historyLink');
     const logoutLink = document.getElementById('logoutLink');
@@ -1712,7 +1436,6 @@
     const historySection = document.getElementById('historySection');
     const themeSwitch = document.getElementById('themeSwitch');
     const sidenav = document.getElementById('sidenav');
-    const mainContent = document.getElementById('mainContent');
     const paginationControls = document.getElementById('paginationControls');
     const prevPageBtn = document.getElementById('prevPageBtn');
     const nextPageBtn = document.getElementById('nextPageBtn');
@@ -1721,62 +1444,9 @@
     const soundToggle = document.getElementById('soundToggle');
     const alertBadge = document.getElementById('alertBadge');
 
-    // Mobile menu toggle functionality
-    mobileMenuToggle.addEventListener('click', function() {
-      isMobileMenuOpen = !isMobileMenuOpen;
-      if (isMobileMenuOpen) {
-        sidenav.classList.add('expanded');
-        mainContent.classList.add('sidebar-expanded');
-      } else {
-        sidenav.classList.remove('expanded');
-        mainContent.classList.remove('sidebar-expanded');
-      }
-    });
-
-    // Close mobile menu when clicking on a link
-    const navLinks = document.querySelectorAll('.sidenav a');
-    navLinks.forEach(link => {
-      link.addEventListener('click', function() {
-        if (window.innerWidth <= 992) {
-          isMobileMenuOpen = false;
-          sidenav.classList.remove('expanded');
-          mainContent.classList.remove('sidebar-expanded');
-        }
-      });
-    });
-
-    // Close mobile menu when clicking outside
-    document.addEventListener('click', function(event) {
-      if (window.innerWidth <= 992 && isMobileMenuOpen) {
-        const isClickInsideSidenav = sidenav.contains(event.target);
-        const isClickOnToggle = mobileMenuToggle.contains(event.target);
-        
-        if (!isClickInsideSidenav && !isClickOnToggle) {
-          isMobileMenuOpen = false;
-          sidenav.classList.remove('expanded');
-          mainContent.classList.remove('sidebar-expanded');
-        }
-      }
-    });
-
     // Initialize notification sound
     function initializeNotificationSound() {
       alertAudio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA');
-      // Create a simple beep sound
-      const context = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = context.createOscillator();
-      const gainNode = context.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(context.destination);
-      
-      oscillator.type = 'sine';
-      oscillator.frequency.value = 800;
-      gainNode.gain.value = 0.5;
-      
-      oscillator.start();
-      gainNode.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.5);
-      oscillator.stop(context.currentTime + 0.5);
     }
 
     // Play notification sound
@@ -2030,7 +1700,7 @@
       }, 500);
     }
 
-    // IMPROVED: Better debouncing and redundant entry handling
+    // IMPROVED: Better debouncing to avoid redundant consecutive entries
     function debounceSensorUpdate() {
       if (updateTimeout) clearTimeout(updateTimeout);
       updateTimeout = setTimeout(() => {
@@ -2040,22 +1710,24 @@
 
         const status = airQuality < 50 ? 'GOOD' : airQuality < 100 ? 'MODERATE' : 'POLLUTED';
 
-        // IMPROVED: Only update if status has changed OR dust level has changed significantly
-        const dustChanged = lastDustLevel === null || 
-                           Math.abs(dustLevel - lastDustLevel) > 0.0001; // Threshold for dust level change
-        
-        if (status === lastStatus && !dustChanged) return;
+        // Only save to history if status has changed
+        if (status !== lastStatus) {
+          lastStatus = status;
+          lastDustLevel = dustLevel;
 
-        lastStatus = status;
-        lastDustLevel = dustLevel;
-
-        const newEntry = { timestamp, status, dustLevel };
-        saveHistoryEntry(newEntry);
-        renderNewHistoryEntry(newEntry);
+          const newEntry = { 
+            timestamp, 
+            status, 
+            dustLevel,
+            airQuality // Store the actual air quality value
+          };
+          saveHistoryEntry(newEntry);
+          renderNewHistoryEntry(newEntry);
+        }
       }, 1000);
     }
 
-    // FIXED: Update circular progress function with proper "Air Quality" label
+    // UPDATED: Circular progress function with "Air Quality" label
     function updateCircularProgress(value) {
       const circle = document.getElementById('progressCircle');
       const text = document.getElementById('progressValue');
@@ -2192,11 +1864,11 @@
       datasets: [{
         label: 'Air Quality',
         data: [],
-        borderColor: '#FF8C00',
-        backgroundColor: 'rgba(255, 140, 0, 0.1)',
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
         fill: true,
         tension: 0.4,
-        pointBackgroundColor: '#FF8C00',
+        pointBackgroundColor: '#3b82f6',
         pointBorderColor: '#fff',
         pointRadius: 4,
         pointHoverRadius: 6
@@ -2291,14 +1963,11 @@
     }
 
     function renderNewHistoryEntry(data) {
-      const { timestamp, status, dustLevel } = data;
+      const { timestamp, status, dustLevel, airQuality } = data;
       if (addedEntries.has(timestamp)) return;
 
       const entryDate = new Date(timestamp);
       if (!isSameDate(entryDate, todayUTC)) return;
-
-      // Only update if status has changed
-      if (status === lastRenderedStatus) return;
 
       const tableBody = document.getElementById('historyTableBody');
       
@@ -2313,15 +1982,10 @@
       dateTimeCell.textContent = formatDateTime(timestamp);
 
       const statusCell = document.createElement('td');
-      statusCell.textContent = status;
-
-      if (status === 'GOOD') {
-        statusCell.innerHTML = '<i class="fas fa-smile" style="color: #2dce89; margin-right: 8px;"></i> ' + status;
-      } else if (status === 'MODERATE') {
-        statusCell.innerHTML = '<i class="fas fa-meh" style="color: #FF8C00; margin-right: 8px;"></i> ' + status;
-      } else if (status === 'POLLUTED') {
-        statusCell.innerHTML = '<i class="fas fa-frown" style="color: #f5365c; margin-right: 8px;"></i> ' + status;
-      }
+      const ppmValue = airQuality ? Math.round(airQuality) : 'N/A';
+      
+      // FIXED: Display status in "MODERATE 97" format without icons
+      statusCell.textContent = `${status} ${ppmValue}`;
 
       const dustCell = document.createElement('td');
       dustCell.textContent = parseFloat(dustLevel).toFixed(5);
@@ -2340,7 +2004,7 @@
       lastRenderedStatus = status;
     }
 
-    // IMPROVED: Better redundant entry filtering
+    // Smart filtering to avoid redundant consecutive entries while preserving all data
     function filterRedundantEntries(entries) {
       if (entries.length === 0) return [];
       
@@ -2384,15 +2048,10 @@
         dateCell.textContent = new Date(entry.timestamp).toLocaleString();
         
         const statusCell = document.createElement("td");
-        if (entry.status === 'GOOD') {
-          statusCell.innerHTML = '<i class="fas fa-smile" style="color: #2dce89; margin-right: 8px;"></i> ' + entry.status;
-        } else if (entry.status === 'MODERATE') {
-          statusCell.innerHTML = '<i class="fas fa-meh" style="color: #FF8C00; margin-right: 8px;"></i> ' + entry.status;
-        } else if (entry.status === 'POLLUTED') {
-          statusCell.innerHTML = '<i class="fas fa-frown" style="color: #f5365c; margin-right: 8px;"></i> ' + entry.status;
-        } else {
-          statusCell.textContent = entry.status;
-        }
+        const ppmValue = entry.airQuality ? Math.round(entry.airQuality) : 'N/A';
+        
+        // FIXED: Display status in "MODERATE 97" format without icons
+        statusCell.textContent = `${entry.status} ${ppmValue}`;
         
         const dustCell = document.createElement("td");
         dustCell.textContent = parseFloat(entry.dustLevel).toFixed(5);
@@ -2453,7 +2112,7 @@
             return entryDate >= start && entryDate <= end;
           });
 
-          // IMPROVED: Apply redundant entry filtering
+          // Apply smart filtering to remove redundant consecutive entries
           filteredHistoryData = filterRedundantEntries(dateFilteredEntries);
 
           // Reset pagination
@@ -2482,7 +2141,7 @@
       // Apply pagination to all historical data
       filteredHistoryData = [...historicalData];
       
-      // IMPROVED: Apply redundant entry filtering
+      // Apply smart filtering to remove redundant consecutive entries
       filteredHistoryData = filterRedundantEntries(filteredHistoryData);
       
       // Sort by timestamp (newest first)
