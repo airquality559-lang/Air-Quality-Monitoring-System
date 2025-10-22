@@ -1500,6 +1500,137 @@
             }
         }
 
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Notification Panel */
+        .notification-dropdown {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-panel {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 0;
+            width: 400px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .notification-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-header h3 {
+            margin: 0;
+            font-size: 16px;
+            color: var(--text-color);
+        }
+
+        .notification-header span {
+            color: var(--secondary);
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .notification-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .notification-item:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+        
+        .notification-item.unread {
+            background-color: rgba(52, 152, 219, 0.05);
+            border-left: 3px solid var(--secondary);
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text-color);
+        }
+        
+        .notification-message {
+            font-size: 13px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        
+        .notification-time {
+            font-size: 11px;
+            color: #95a5a6;
+        }
+        
+        .notification-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+        
+        .notification-btn {
+            padding: 4px 8px;
+            font-size: 11px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-approve {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .btn-reject {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .notification-empty {
+            padding: 20px;
+            text-align: center;
+            color: #7f8c8d;
+        }
+        
+        .notification-empty i {
+            font-size: 40px;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
         /* Responsive Styles */
         @media (max-width: 992px) {
             .charts-container {
@@ -1658,7 +1789,7 @@
             </form>
 
             <div class="additional-links">
-                <p><a id="add-barangay-link">Add Barangay</a> | <a id="contact-support-link">Contact support</a></p>
+                <p><a id="add-user-link">Add User</a> | <a id="contact-support-link">Contact support</a></p>
             </div>
         </div>
     </div>
@@ -1680,11 +1811,15 @@
                     <i class="fas fa-map-marker-alt"></i>
                     <span>Barangays</span>
                 </a>
+                <a href="#" class="menu-item" data-section="users">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                    <span class="notification-badge" id="user-notification-badge" style="display: none;">0</span>
+                </a>
                 <a href="#" class="menu-item" data-section="history">
                     <i class="fas fa-history"></i>
                     <span>History</span>
                 </a>
-                <!-- Users section removed -->
                 <a href="#" class="menu-item" id="sidebar-logout-btn">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
@@ -1706,6 +1841,20 @@
                     <h1>Overview</h1>
                 </div>
                 <div class="header-right">
+                    <!-- Notification dropdown -->
+                    <div class="notification-dropdown">
+                        <i class="fas fa-bell" id="notification-icon"></i>
+                        <span class="notification-badge" id="notification-badge" style="display: none;">0</span>
+                        <div class="notification-panel" id="notification-panel">
+                            <div class="notification-header">
+                                <h3>Notifications</h3>
+                                <span id="mark-all-read">Mark all as read</span>
+                            </div>
+                            <div class="notification-list" id="notification-list">
+                                <!-- Notifications will be populated here -->
+                            </div>
+                        </div>
+                    </div>
                     <div class="user-info">
                         <div class="user-avatar">A</div>
                         <span>Admin User</span>
@@ -1746,13 +1895,14 @@
                                 <p>Pending Requests</p>
                             </div>
                         </div>
+                        <!-- CHANGED: Replaced "Poor Air Quality Areas" with "Number of User Accounts" -->
                         <div class="stat-card">
                             <div class="stat-icon bg-danger">
-                                <i class="fas fa-exclamation-triangle"></i>
+                                <i class="fas fa-users"></i>
                             </div>
                             <div class="stat-info">
-                                <h3 id="poor-air-quality">0</h3>
-                                <p>Poor Air Quality Areas</p>
+                                <h3 id="user-accounts">0</h3>
+                                <p>Number of User Accounts</p>
                             </div>
                         </div>
                     </div>
@@ -1783,7 +1933,7 @@
                     <!-- Pending Barangays Table -->
                     <div class="table-container">
                         <div class="table-header">
-                            <h3>Pending Barangay Registrations</h3>
+                            <h3>Pending Users Registrations</h3>
                             <div class="search-box">
                                 <i class="fas fa-search"></i>
                                 <input type="text" id="search-pending" placeholder="Search barangays...">
@@ -1799,13 +1949,46 @@
                     <!-- Approved Barangays Table -->
                     <div class="table-container">
                         <div class="table-header">
-                            <h3>Approved Barangays</h3>
+                            <h3>Approved Users</h3>
                             <div class="search-box">
                                 <i class="fas fa-search"></i>
                                 <input type="text" id="search-approved" placeholder="Search barangays...">
                             </div>
                         </div>
                         <div id="approved-table-container">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Section -->
+                <div id="users-section" style="display: none;">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>Pending User Approvals</h3>
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="search-pending-users" placeholder="Search users...">
+                            </div>
+                        </div>
+                        <div id="pending-users-table-container">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>Approved Users</h3>
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="search-approved-users" placeholder="Search users...">
+                            </div>
+                        </div>
+                        <div id="approved-users-table-container">
                             <div class="loading">
                                 <div class="spinner"></div>
                             </div>
@@ -1879,8 +2062,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Users Section Removed -->
             </div>
         </div>
     </div>
@@ -1939,7 +2120,7 @@
                         <div class="card main-metric-card">
                             <!-- Left side: AQI Visualization -->
                             <div class="aqi-visualization">
-                                <!-- UPDATED: Circular progress with "Air Quality" label -->
+                                <!-- Circular progress with "Air Quality" label -->
                                 <div class="circular-progress" id="progressCircle">
                                     <div class="progress-content">
                                         <div class="progress-value" id="progressValue">0</div>
@@ -2115,38 +2296,47 @@
         </div>
     </div>
 
-    <!-- Add Barangay Modal -->
-    <div class="modal" id="add-barangay-modal">
+    <!-- Add User Modal -->
+    <div class="modal" id="add-user-modal">
         <div class="modal-content">
-            <span class="close-modal" id="close-barangay">&times;</span>
-            <h2 class="modal-title">Register New Barangay</h2>
-            <p style="margin-bottom: 20px; color: #7f8c8d;">Register a new barangay for air quality monitoring. Account requires admin approval.</p>
+            <span class="close-modal" id="close-user">&times;</span>
+            <h2 class="modal-title">Register New User</h2>
+            <p style="margin-bottom: 20px; color: #7f8c8d;">Register a new user account. Account requires admin approval.</p>
             
             <div class="input-group">
-                <label for="barangay-name">Barangay Name</label>
-                <input type="text" id="barangay-name" class="modal-input" placeholder="Enter barangay name" required>
+                <label for="user-name">Full Name</label>
+                <input type="text" id="user-name" class="modal-input" placeholder="Enter full name" required>
             </div>
             
             <div class="input-group">
-                <label for="barangay-city">Municipality</label>
-                <input type="text" id="barangay-city" class="modal-input" placeholder="Enter municipality" required>
+                <label for="user-email">Email Address</label>
+                <input type="email" id="user-email" class="modal-input" placeholder="Enter email address" required>
             </div>
             
             <div class="input-group">
-                <label for="barangay-gmail">Gmail Address</label>
-                <input type="email" id="barangay-gmail" class="modal-input" placeholder="Enter gmail address" required>
+                <label for="user-role">User Role</label>
+                <select id="user-role" class="modal-input">
+                    <option value="barangay">Barangay User</option>
+                    <option value="viewer">Viewer</option>
+                    <option value="analyst">Data Analyst</option>
+                </select>
             </div>
             
             <div class="input-group">
-                <label for="barangay-password">Password</label>
-                <input type="password" id="barangay-password" class="modal-input" placeholder="Enter password" required>
+                <label for="user-password">Password</label>
+                <input type="password" id="user-password" class="modal-input" placeholder="Enter password" required>
             </div>
             
-            <button class="modal-button" id="add-barangay-button">
-                <i class="fas fa-plus-circle"></i> Register Barangay
+            <div class="input-group">
+                <label for="user-confirm-password">Confirm Password</label>
+                <input type="password" id="user-confirm-password" class="modal-input" placeholder="Confirm password" required>
+            </div>
+            
+            <button class="modal-button" id="add-user-button">
+                <i class="fas fa-plus-circle"></i> Register User
             </button>
             
-            <p id="barangay-message" class="message" style="margin-top: 15px;"></p>
+            <p id="user-message" class="message" style="margin-top: 15px;"></p>
         </div>
     </div>
 
@@ -2199,7 +2389,7 @@
         };
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is already logged in
+            // FIXED: Check login status without auto-login
             checkLoginStatus();
 
             // Initialize particles
@@ -2225,8 +2415,937 @@
 
             // Print functionality
             setupPrintButtons();
+
+            // Load user data for admin
+            if (localStorage.getItem('userRole') === 'admin') {
+                loadUserData();
+                setupNotificationSystem();
+            }
         });
 
+        // FIXED: Check login status - only redirect if user is logged in
+        function checkLoginStatus() {
+            const userRole = localStorage.getItem('userRole');
+            const userEmail = localStorage.getItem('userEmail');
+            
+            // Only redirect if user is logged in
+            if (userEmail && userRole) {
+                // Verify the user is still approved
+                const approvedUsersRef = database.ref('approvedUsers');
+                const approvedBarangaysRef = database.ref('approvedBarangays');
+                
+                Promise.all([
+                    approvedUsersRef.once('value'),
+                    approvedBarangaysRef.once('value')
+                ]).then(([approvedUsersSnapshot, approvedBarangaysSnapshot]) => {
+                    const approvedUsers = approvedUsersSnapshot.val() || {};
+                    const approvedBarangays = approvedBarangaysSnapshot.val() || {};
+                    
+                    let isStillApproved = false;
+                    
+                    // Check if user is an approved user
+                    Object.values(approvedUsers).forEach(user => {
+                        if (user.email === userEmail && user.status === 'approved') {
+                            isStillApproved = true;
+                        }
+                    });
+                    
+                    // If not found in users, check if it's an approved barangay
+                    if (!isStillApproved && userRole === 'barangay') {
+                        Object.values(approvedBarangays).forEach(barangay => {
+                            if (barangay.gmail === userEmail && barangay.status === 'approved') {
+                                isStillApproved = true;
+                            }
+                        });
+                    }
+                    
+                    if (isStillApproved) {
+                        if (userRole === 'admin') {
+                            showAdminDashboard();
+                        } else if (userRole === 'barangay') {
+                            const barangayName = localStorage.getItem('barangayName');
+                            redirectToBarangayPage(barangayName);
+                        } else {
+                            // For regular users
+                            redirectToUserDashboard(userRole);
+                        }
+                    } else {
+                        // User is no longer approved, force logout
+                        localStorage.removeItem('userRole');
+                        localStorage.removeItem('userEmail');
+                        localStorage.removeItem('barangayName');
+                        localStorage.removeItem('barangayId');
+                        showError('Your account is no longer approved. Please contact administrator.');
+                    }
+                });
+            }
+            // If no user is logged in, stay on the login page
+        }
+
+        // Setup notification system
+        function setupNotificationSystem() {
+            // Notification icon click handler
+            document.getElementById('notification-icon').addEventListener('click', function() {
+                const panel = document.getElementById('notification-panel');
+                panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+            });
+
+            // Mark all as read
+            document.getElementById('mark-all-read').addEventListener('click', function() {
+                markAllNotificationsAsRead();
+            });
+
+            // Close notification panel when clicking outside
+            document.addEventListener('click', function(event) {
+                const panel = document.getElementById('notification-panel');
+                const icon = document.getElementById('notification-icon');
+                if (!panel.contains(event.target) && !icon.contains(event.target)) {
+                    panel.style.display = 'none';
+                }
+            });
+
+            // Listen for new user registrations
+            const pendingUsersRef = database.ref('pendingUsers');
+            pendingUsersRef.on('value', function(snapshot) {
+                updateNotificationBadge();
+                loadUserData(); // Reload user data when there are changes
+            });
+
+            // Listen for admin notifications
+            const notificationsRef = database.ref('adminNotifications');
+            notificationsRef.on('value', function(snapshot) {
+                updateNotificationPanel();
+                updateNotificationBadge();
+            });
+        }
+
+        // Update notification badge
+        function updateNotificationBadge() {
+            const notificationsRef = database.ref('adminNotifications');
+            const pendingUsersRef = database.ref('pendingUsers');
+            
+            Promise.all([
+                notificationsRef.once('value'),
+                pendingUsersRef.once('value')
+            ]).then(([notificationsSnapshot, pendingUsersSnapshot]) => {
+                const notifications = notificationsSnapshot.val() || {};
+                const pendingUsers = pendingUsersSnapshot.val() || {};
+                
+                let unreadCount = 0;
+                
+                // Count unread notifications
+                Object.values(notifications).forEach(notification => {
+                    if (!notification.read) {
+                        unreadCount++;
+                    }
+                });
+                
+                // Count pending users
+                const pendingUserCount = Object.keys(pendingUsers).length;
+                
+                // Update notification badge
+                const badge = document.getElementById('notification-badge');
+                const userBadge = document.getElementById('user-notification-badge');
+                
+                if (unreadCount + pendingUserCount > 0) {
+                    badge.textContent = unreadCount + pendingUserCount;
+                    badge.style.display = 'flex';
+                    
+                    userBadge.textContent = pendingUserCount;
+                    userBadge.style.display = pendingUserCount > 0 ? 'flex' : 'none';
+                } else {
+                    badge.style.display = 'none';
+                    userBadge.style.display = 'none';
+                }
+            });
+        }
+
+        // Update notification panel
+        function updateNotificationPanel() {
+            const notificationsRef = database.ref('adminNotifications');
+            const pendingUsersRef = database.ref('pendingUsers');
+            
+            Promise.all([
+                notificationsRef.once('value'),
+                pendingUsersRef.once('value')
+            ]).then(([notificationsSnapshot, pendingUsersSnapshot]) => {
+                const notifications = notificationsSnapshot.val() || {};
+                const pendingUsers = pendingUsersSnapshot.val() || {};
+                
+                const notificationList = document.getElementById('notification-list');
+                let notificationHTML = '';
+                
+                // Add pending user notifications
+                Object.keys(pendingUsers).forEach(userId => {
+                    const user = pendingUsers[userId];
+                    notificationHTML += `
+                        <div class="notification-item unread" data-id="${userId}" data-type="user">
+                            <div class="notification-title">New User Registration</div>
+                            <div class="notification-message">${user.name} (${user.email}) has requested access as ${user.role}.</div>
+                            <div class="notification-time">${formatTime(user.createdAt)}</div>
+                            <div class="notification-actions">
+                                <button class="notification-btn btn-approve" data-id="${userId}">Approve</button>
+                                <button class="notification-btn btn-reject" data-id="${userId}">Reject</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                // Add other notifications
+                Object.keys(notifications).forEach(notificationId => {
+                    const notification = notifications[notificationId];
+                    const unreadClass = notification.read ? '' : 'unread';
+                    
+                    notificationHTML += `
+                        <div class="notification-item ${unreadClass}" data-id="${notificationId}" data-type="notification">
+                            <div class="notification-title">${notification.title}</div>
+                            <div class="notification-message">${notification.message}</div>
+                            <div class="notification-time">${formatTime(notification.timestamp)}</div>
+                        </div>
+                    `;
+                });
+                
+                if (notificationHTML === '') {
+                    notificationHTML = `
+                        <div class="notification-empty">
+                            <i class="fas fa-bell-slash"></i>
+                            <p>No notifications</p>
+                        </div>
+                    `;
+                }
+                
+                notificationList.innerHTML = notificationHTML;
+                
+                // Add event listeners for notification actions
+                document.querySelectorAll('.notification-btn.btn-approve').forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const userId = this.getAttribute('data-id');
+                        approveUser(userId);
+                    });
+                });
+                
+                document.querySelectorAll('.notification-btn.btn-reject').forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const userId = this.getAttribute('data-id');
+                        rejectUser(userId);
+                    });
+                });
+                
+                // Add click handlers for notifications
+                document.querySelectorAll('.notification-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const notificationId = this.getAttribute('data-id');
+                        const type = this.getAttribute('data-type');
+                        
+                        if (type === 'notification') {
+                            markNotificationAsRead(notificationId);
+                        }
+                    });
+                });
+            });
+        }
+
+        // Format time for notifications
+        function formatTime(timestamp) {
+            if (!timestamp) return 'Unknown time';
+            
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMins / 60);
+            const diffDays = Math.floor(diffHours / 24);
+            
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} min ago`;
+            if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+            
+            return date.toLocaleDateString();
+        }
+
+        // Mark notification as read
+        function markNotificationAsRead(notificationId) {
+            const notificationRef = database.ref('adminNotifications/' + notificationId);
+            notificationRef.update({ read: true })
+                .then(() => {
+                    updateNotificationPanel();
+                    updateNotificationBadge();
+                })
+                .catch(error => {
+                    console.error('Error marking notification as read:', error);
+                });
+        }
+
+        // Mark all notifications as read
+        function markAllNotificationsAsRead() {
+            const notificationsRef = database.ref('adminNotifications');
+            notificationsRef.once('value').then(snapshot => {
+                const notifications = snapshot.val() || {};
+                const updates = {};
+                
+                Object.keys(notifications).forEach(notificationId => {
+                    updates[`adminNotifications/${notificationId}/read`] = true;
+                });
+                
+                database.ref().update(updates)
+                    .then(() => {
+                        updateNotificationPanel();
+                        updateNotificationBadge();
+                    })
+                    .catch(error => {
+                        console.error('Error marking all notifications as read:', error);
+                    });
+            });
+        }
+
+        // Setup modals
+        function setupModals() {
+            // Add User Modal
+            document.getElementById('add-user-link').addEventListener('click', () => {
+                document.getElementById('add-user-modal').classList.add('active');
+            });
+
+            document.getElementById('close-user').addEventListener('click', () => {
+                document.getElementById('add-user-modal').classList.remove('active');
+            });
+
+            document.getElementById('add-user-button').addEventListener('click', registerUser);
+
+            // Barangay Details Modal
+            document.getElementById('close-barangay-modal').addEventListener('click', () => {
+                document.getElementById('barangay-modal').classList.remove('active');
+            });
+
+            // Close modals when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === document.getElementById('add-user-modal')) {
+                    document.getElementById('add-user-modal').classList.remove('active');
+                }
+                if (e.target === document.getElementById('barangay-modal')) {
+                    document.getElementById('barangay-modal').classList.remove('active');
+                }
+            });
+        }
+
+        // Register user function
+        function registerUser() {
+            const name = document.getElementById('user-name').value.trim();
+            const email = document.getElementById('user-email').value.trim();
+            const role = document.getElementById('user-role').value;
+            const password = document.getElementById('user-password').value.trim();
+            const confirmPassword = document.getElementById('user-confirm-password').value.trim();
+            const button = document.getElementById('add-user-button');
+            const message = document.getElementById('user-message');
+            
+            if (!name || !email || !password || !confirmPassword) {
+                showMessage(message, 'Please fill in all required fields.', 'error');
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                showMessage(message, 'Please enter a valid email address.', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showMessage(message, 'Password must be at least 6 characters long.', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showMessage(message, 'Passwords do not match.', 'error');
+                return;
+            }
+            
+            // Disable button to prevent multiple submissions
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+            
+            // Check if user already exists in pending or approved users
+            const pendingRef = database.ref('pendingUsers');
+            const approvedRef = database.ref('approvedUsers');
+            
+            Promise.all([
+                pendingRef.once('value'),
+                approvedRef.once('value')
+            ]).then(([pendingSnapshot, approvedSnapshot]) => {
+                const pendingUsers = pendingSnapshot.val() || {};
+                const approvedUsers = approvedSnapshot.val() || {};
+                
+                // Check if email already exists
+                const allUsers = { ...pendingUsers, ...approvedUsers };
+                const emailExists = Object.values(allUsers).some(user => user.email === email);
+                
+                if (emailExists) {
+                    showMessage(message, 'This email is already registered.', 'error');
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fas fa-plus-circle"></i> Register User';
+                    return;
+                }
+                
+                // Create user in Firebase Auth
+                return auth.createUserWithEmailAndPassword(email, password);
+            })
+            .then((userCredential) => {
+                if (!userCredential) return; // User already exists, exit
+                
+                const user = userCredential.user;
+                
+                // Add user to pending users
+                const userRef = database.ref('pendingUsers/' + user.uid);
+                return userRef.set({
+                    name: name,
+                    email: email,
+                    role: role,
+                    status: 'pending',
+                    createdAt: new Date().toISOString(),
+                    userId: user.uid
+                });
+            })
+            .then(() => {
+                showMessage(message, `User "${name}" registered successfully! Awaiting admin approval.`, 'success');
+                button.innerHTML = '<i class="fas fa-plus-circle"></i> Register User';
+                
+                // Clear the form
+                document.getElementById('user-name').value = '';
+                document.getElementById('user-email').value = '';
+                document.getElementById('user-password').value = '';
+                document.getElementById('user-confirm-password').value = '';
+                
+                // Send notification to admin
+                sendAdminUserNotification(name, email, role);
+                
+                // Close modal after successful registration
+                setTimeout(() => {
+                    document.getElementById('add-user-modal').classList.remove('active');
+                    button.disabled = false;
+                }, 2000);
+            })
+            .catch((error) => {
+                let errorMsg = 'Failed to register user. ';
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMsg = 'This email is already registered.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMsg = 'Invalid email address format.';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMsg = 'Password is too weak.';
+                } else {
+                    errorMsg += error.message;
+                }
+                
+                showMessage(message, errorMsg, 'error');
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-plus-circle"></i> Register User';
+            });
+        }
+
+        // Send admin notification for new user
+        function sendAdminUserNotification(userName, email, role) {
+            const notificationsRef = database.ref('adminNotifications');
+            const newNotification = {
+                type: 'new_user',
+                title: 'New User Registration',
+                message: `${userName} (${email}) has registered for a ${role} account. Please review and approve.`,
+                userName: userName,
+                userEmail: email,
+                userRole: role,
+                timestamp: new Date().toISOString(),
+                read: false
+            };
+            
+            notificationsRef.push(newNotification)
+                .then(() => {
+                    console.log('Admin notification sent successfully');
+                })
+                .catch((error) => {
+                    console.error('Error sending admin notification:', error);
+                });
+        }
+
+        // Load user data for admin
+        function loadUserData() {
+            const pendingContainer = document.getElementById('pending-users-table-container');
+            const approvedContainer = document.getElementById('approved-users-table-container');
+            
+            pendingContainer.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            approvedContainer.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            const pendingRef = database.ref('pendingUsers');
+            const approvedRef = database.ref('approvedUsers');
+            
+            Promise.all([
+                pendingRef.once('value'),
+                approvedRef.once('value')
+            ]).then(([pendingSnapshot, approvedSnapshot]) => {
+                const pendingUsers = pendingSnapshot.val() || {};
+                const approvedUsers = approvedSnapshot.val() || {};
+                
+                displayPendingUsersTable(pendingUsers);
+                displayApprovedUsersTable(approvedUsers);
+                
+                // CHANGED: Update user accounts count
+                document.getElementById('user-accounts').textContent = Object.keys(approvedUsers).length;
+            }).catch(error => {
+                console.error("Error loading user data:", error);
+                pendingContainer.innerHTML = approvedContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error Loading Data</h3>
+                        <p>Failed to load user data. Please try again.</p>
+                    </div>
+                `;
+            });
+        }
+
+        // Display pending users table
+        function displayPendingUsersTable(users) {
+            const container = document.getElementById('pending-users-table-container');
+            
+            if (Object.keys(users).length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <h3>No Pending Users</h3>
+                        <p>There are no user registration requests pending approval.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Date Registered</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            Object.keys(users).forEach(userId => {
+                const user = users[userId];
+                tableHTML += `
+                    <tr data-id="${userId}">
+                        <td>${user.name}</td>
+                        <td>${user.email}</td>
+                        <td>${user.role}</td>
+                        <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}</td>
+                        <td><span class="status status-pending">Pending</span></td>
+                        <td class="action-buttons">
+                            <button class="btn btn-approve" data-id="${userId}">Approve</button>
+                            <button class="btn btn-reject" data-id="${userId}">Reject</button>
+                            <button class="btn btn-view" data-id="${userId}">View</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = tableHTML;
+            
+            // Add event listeners
+            document.querySelectorAll('#pending-users-table-container .btn-approve').forEach(button => {
+                button.addEventListener('click', function() {
+                    const userId = this.getAttribute('data-id');
+                    approveUser(userId);
+                });
+            });
+            
+            document.querySelectorAll('#pending-users-table-container .btn-reject').forEach(button => {
+                button.addEventListener('click', function() {
+                    const userId = this.getAttribute('data-id');
+                    rejectUser(userId);
+                });
+            });
+            
+            document.querySelectorAll('#pending-users-table-container .btn-view').forEach(button => {
+                button.addEventListener('click', function() {
+                    const userId = this.getAttribute('data-id');
+                    viewUserDetails(userId, 'pendingUsers');
+                });
+            });
+        }
+
+        // Display approved users table
+        function displayApprovedUsersTable(users) {
+            const container = document.getElementById('approved-users-table-container');
+            
+            if (Object.keys(users).length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <h3>No Approved Users</h3>
+                        <p>There are no approved users in the system yet.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Date Approved</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            Object.keys(users).forEach(userId => {
+                const user = users[userId];
+                tableHTML += `
+                    <tr data-id="${userId}">
+                        <td>${user.name}</td>
+                        <td>${user.email}</td>
+                        <td>${user.role}</td>
+                        <td>${user.approvedAt ? new Date(user.approvedAt).toLocaleDateString() : 'Unknown'}</td>
+                        <td><span class="status status-approved">Active</span></td>
+                        <td class="action-buttons">
+                            <button class="btn btn-view" data-id="${userId}">View Details</button>
+                            <button class="btn btn-reject" data-id="${userId}">Deactivate</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = tableHTML;
+            
+            // Add event listeners
+            document.querySelectorAll('#approved-users-table-container .btn-view').forEach(button => {
+                button.addEventListener('click', function() {
+                    const userId = this.getAttribute('data-id');
+                    viewUserDetails(userId, 'approvedUsers');
+                });
+            });
+            
+            document.querySelectorAll('#approved-users-table-container .btn-reject').forEach(button => {
+                button.addEventListener('click', function() {
+                    const userId = this.getAttribute('data-id');
+                    deactivateUser(userId);
+                });
+            });
+        }
+
+        // Approve user function
+        function approveUser(userId) {
+            if(confirm('Are you sure you want to approve this user?')) {
+                const pendingRef = database.ref('pendingUsers/' + userId);
+                
+                pendingRef.once('value').then((snapshot) => {
+                    const user = snapshot.val();
+                    
+                    if (user) {
+                        // Move user to approved users
+                        const approvedRef = database.ref('approvedUsers/' + userId);
+                        return approvedRef.set({
+                            ...user,
+                            status: 'approved',
+                            approvedAt: new Date().toISOString()
+                        }).then(() => {
+                            // Remove from pending users
+                            return pendingRef.remove();
+                        });
+                    } else {
+                        alert('User data not found.');
+                    }
+                })
+                .then(() => {
+                    alert('User approved successfully!');
+                    loadUserData();
+                    updateNotificationPanel();
+                    updateNotificationBadge();
+                })
+                .catch((error) => {
+                    console.error('Error approving user:', error);
+                    alert('Error approving user. Please try again.');
+                });
+            }
+        }
+
+        // Reject user function
+        function rejectUser(userId) {
+            if(confirm('Are you sure you want to reject this user?')) {
+                const pendingRef = database.ref('pendingUsers/' + userId);
+                
+                pendingRef.remove()
+                    .then(() => {
+                        alert('User rejected successfully!');
+                        loadUserData();
+                        updateNotificationPanel();
+                        updateNotificationBadge();
+                    })
+                    .catch((error) => {
+                        console.error('Error rejecting user:', error);
+                        alert('Error rejecting user. Please try again.');
+                    });
+            }
+        }
+
+        // Deactivate user function
+        function deactivateUser(userId) {
+            if(confirm('Are you sure you want to deactivate this user?')) {
+                const approvedRef = database.ref('approvedUsers/' + userId);
+                
+                approvedRef.remove()
+                    .then(() => {
+                        alert('User deactivated successfully!');
+                        loadUserData();
+                    })
+                    .catch((error) => {
+                        console.error('Error deactivating user:', error);
+                        alert('Error deactivating user. Please try again.');
+                    });
+            }
+        }
+
+        // View user details
+        function viewUserDetails(userId, location) {
+            const ref = database.ref(location + '/' + userId);
+            
+            ref.once('value').then((snapshot) => {
+                const user = snapshot.val();
+                
+                if (user) {
+                    showUserModal(user, user.status || 'pending');
+                } else {
+                    alert('User data not found.');
+                }
+            });
+        }
+
+        // Show user modal
+        function showUserModal(user, status) {
+            const dateField = status === 'approved' ? 'approvedAt' : 'createdAt';
+            const date = user[dateField] ? new Date(user[dateField]).toLocaleDateString() : 'Unknown date';
+            
+            document.getElementById('barangay-details').innerHTML = `
+                <div style="padding: 20px;">
+                    <h3 style="margin-bottom: 15px; color: var(--primary);">User Information</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                        <div>
+                            <p><strong>Name:</strong> ${user.name}</p>
+                            <p><strong>Email:</strong> ${user.email}</p>
+                            <p><strong>Role:</strong> ${user.role}</p>
+                        </div>
+                        <div>
+                            <p><strong>Date ${status === 'approved' ? 'Approved' : 'Registered'}:</strong> ${date}</p>
+                            <p><strong>Status:</strong> <span class="status status-${status}">${status === 'approved' ? 'Approved' : 'Pending'}</span></p>
+                            <p><strong>User ID:</strong> ${user.userId}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('barangay-modal').classList.add('active');
+        }
+
+        // Complete user approval checking system
+        function checkUserApproval(email, password, role, barangayName = '', barangayId = '') {
+            console.log("Checking approval for:", email, "Role:", role);
+            
+            if (role === 'admin') {
+                // For admin, check if it's an approved admin user
+                checkAdminApproval(email, password);
+                return;
+            }
+            
+            if (role === 'barangay') {
+                checkBarangayApproval(email, password, barangayName, barangayId);
+                return;
+            }
+            
+            // For other user roles (casidman, central, etc.), check user approval
+            checkRegularUserApproval(email, password, role);
+        }
+
+        // Check admin approval
+        function checkAdminApproval(email, password) {
+            const approvedUsersRef = database.ref('approvedUsers');
+            approvedUsersRef.once('value').then((snapshot) => {
+                const approvedUsers = snapshot.val() || {};
+                let isApprovedAdmin = false;
+                
+                Object.values(approvedUsers).forEach(user => {
+                    if (user.email === email && user.role === 'admin' && user.status === 'approved') {
+                        isApprovedAdmin = true;
+                    }
+                });
+                
+                if (isApprovedAdmin) {
+                    performLogin(email, password, 'admin');
+                } else {
+                    showError('Admin account not approved or not found. Please contact system administrator.');
+                    resetLoginButton();
+                }
+            }).catch((error) => {
+                console.error("Error checking admin approval:", error);
+                showError('Error checking admin status. Please try again.');
+                resetLoginButton();
+            });
+        }
+
+        // Check regular user approval
+        function checkRegularUserApproval(email, password, role) {
+            const approvedUsersRef = database.ref('approvedUsers');
+            const pendingUsersRef = database.ref('pendingUsers');
+            
+            Promise.all([
+                approvedUsersRef.once('value'),
+                pendingUsersRef.once('value')
+            ]).then(([approvedSnapshot, pendingSnapshot]) => {
+                const approvedUsers = approvedSnapshot.val() || {};
+                const pendingUsers = pendingSnapshot.val() || {};
+                
+                // Check if user is approved
+                let isApproved = false;
+                Object.values(approvedUsers).forEach(user => {
+                    if (user.email === email && user.status === 'approved') {
+                        isApproved = true;
+                    }
+                });
+                
+                if (isApproved) {
+                    performLogin(email, password, role);
+                } else {
+                    // Check if user is pending
+                    let isPending = false;
+                    Object.values(pendingUsers).forEach(user => {
+                        if (user.email === email) {
+                            isPending = true;
+                        }
+                    });
+                    
+                    if (isPending) {
+                        showError('Your account is pending admin approval. Please wait for approval email.');
+                    } else {
+                        showError('Account not found. Please register first.');
+                    }
+                    resetLoginButton();
+                }
+            }).catch((error) => {
+                console.error("Error checking user approval:", error);
+                showError('Error checking account status. Please try again.');
+                resetLoginButton();
+            });
+        }
+
+        // Handle login with proper role detection
+        function handleLogin(e) {
+            e.preventDefault();
+            const loginButton = document.getElementById('login-button');
+            loginButton.disabled = true;
+            loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const roleValue = document.getElementById('role').value;
+
+            if (!email || !password || !roleValue) {
+                showError('Please fill in all fields.');
+                loginButton.disabled = false;
+                loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+                return;
+            }
+
+            // Determine role and email based on selection
+            let role, loginEmail, barangayName, barangayId;
+            
+            if (roleValue.startsWith('barangay_')) {
+                // Barangay role selected
+                role = 'barangay';
+                const selectedOption = document.getElementById('role').selectedOptions[0];
+                loginEmail = selectedOption.getAttribute('data-email');
+                barangayName = selectedOption.getAttribute('data-name');
+                barangayId = selectedOption.getAttribute('data-id');
+                
+                // Auto-fill the email field with barangay email
+                document.getElementById('email').value = loginEmail;
+            } else if (roleValue === 'admin') {
+                // Admin role
+                role = 'admin';
+                loginEmail = email;
+            } else {
+                // Regular user roles (casidman, central, etc.)
+                role = roleValue;
+                loginEmail = email;
+            }
+
+            checkUserApproval(loginEmail, password, role, barangayName, barangayId);
+        }
+
+        // Setup approval monitoring for active sessions
+        function setupApprovalMonitoring() {
+            // Listen for changes to user approval status
+            const approvedUsersRef = database.ref('approvedUsers');
+            const approvedBarangaysRef = database.ref('approvedBarangays');
+            
+            approvedUsersRef.on('value', function(snapshot) {
+                const currentUserEmail = localStorage.getItem('userEmail');
+                if (!currentUserEmail) return;
+                
+                const approvedUsers = snapshot.val() || {};
+                let isStillApproved = false;
+                
+                Object.values(approvedUsers).forEach(user => {
+                    if (user.email === currentUserEmail && user.status === 'approved') {
+                        isStillApproved = true;
+                    }
+                });
+                
+                if (!isStillApproved) {
+                    // User was deactivated, force logout
+                    alert('Your account has been deactivated by an administrator.');
+                    localStorage.clear();
+                    showLoginPage();
+                }
+            });
+            
+            approvedBarangaysRef.on('value', function(snapshot) {
+                const currentUserEmail = localStorage.getItem('userEmail');
+                const userRole = localStorage.getItem('userRole');
+                
+                if (!currentUserEmail || userRole !== 'barangay') return;
+                
+                const approvedBarangays = snapshot.val() || {};
+                let isStillApproved = false;
+                
+                Object.values(approvedBarangays).forEach(barangay => {
+                    if (barangay.gmail === currentUserEmail && barangay.status === 'approved') {
+                        isStillApproved = true;
+                    }
+                });
+                
+                if (!isStillApproved) {
+                    // Barangay was deactivated, force logout
+                    alert('Your barangay account has been deactivated by an administrator.');
+                    localStorage.clear();
+                    showLoginPage();
+                }
+            });
+        }
+
+        // Rest of the existing functions remain the same...
         function setupPrintButtons() {
             // Admin print button
             document.getElementById('print-history-btn').addEventListener('click', function() {
@@ -2282,6 +3401,8 @@
                             loadHistoryData();
                         } else if (section === 'barangays') {
                             loadAllBarangays();
+                        } else if (section === 'users') {
+                            loadUserData();
                         }
                     });
                 }
@@ -2337,6 +3458,7 @@
             const titles = {
                 'overview': 'Overview',
                 'barangays': 'Barangays',
+                'users': 'Users',
                 'history': 'History'
             };
             return titles[section] || 'Dashboard';
@@ -2425,62 +3547,6 @@
                     roleSelect.insertBefore(option, adminOption.nextSibling);
                 });
             }
-        }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            const loginButton = document.getElementById('login-button');
-            loginButton.disabled = true;
-            loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
-
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const roleValue = document.getElementById('role').value;
-
-            if (!email || !password || !roleValue) {
-                showError('Please fill in all fields.');
-                loginButton.disabled = false;
-                loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
-                return;
-            }
-
-            // Determine role and email based on selection
-            let role, loginEmail, barangayName, barangayId;
-            
-            if (roleValue.startsWith('barangay_')) {
-                // Barangay role selected
-                role = 'barangay';
-                const selectedOption = document.getElementById('role').selectedOptions[0];
-                loginEmail = selectedOption.getAttribute('data-email');
-                barangayName = selectedOption.getAttribute('data-name');
-                barangayId = selectedOption.getAttribute('data-id');
-                
-                // Auto-fill the email field with barangay email
-                document.getElementById('email').value = loginEmail;
-            } else {
-                // Other roles (admin, casidman, central)
-                role = roleValue;
-                loginEmail = email;
-            }
-
-            checkUserApproval(loginEmail, password, role, barangayName, barangayId);
-        }
-
-        function checkUserApproval(email, password, role, barangayName = '', barangayId = '') {
-            console.log("Checking approval for:", email, "Role:", role);
-            
-            if (role === 'admin') {
-                performLogin(email, password, role);
-                return;
-            }
-            
-            if (role === 'barangay') {
-                checkBarangayApproval(email, password, barangayName, barangayId);
-                return;
-            }
-            
-            // For specific barangays like casidman, central
-            performLogin(email, password, role, barangayName);
         }
 
         function checkBarangayApproval(email, password, barangayName, barangayId) {
@@ -2604,6 +3670,11 @@
                 });
         }
 
+        function redirectToUserDashboard(userRole) {
+            // For regular users, show a simple dashboard
+            showBarangayDashboard(userRole);
+        }
+
         function showBarangayDashboard(barangayName) {
             document.getElementById('login-page').style.display = 'none';
             document.getElementById('barangay-dashboard').style.display = 'flex';
@@ -2619,6 +3690,9 @@
             
             // Update real-time data
             updateBarangayRealTimeData(barangayName);
+            
+            // Setup approval monitoring for active session
+            setupApprovalMonitoring();
         }
 
         function updateBarangayRealTimeData(barangayName) {
@@ -2700,137 +3774,6 @@
             const position = Math.min(aqi / maxAQI * 100, 100);
             
             aqiMarker.style.left = `${position}%`;
-        }
-
-        function setupModals() {
-            // Add Barangay Modal
-            document.getElementById('add-barangay-link').addEventListener('click', () => {
-                document.getElementById('add-barangay-modal').classList.add('active');
-            });
-
-            document.getElementById('close-barangay').addEventListener('click', () => {
-                document.getElementById('add-barangay-modal').classList.remove('active');
-            });
-
-            document.getElementById('add-barangay-button').addEventListener('click', registerBarangay);
-
-            // Barangay Details Modal
-            document.getElementById('close-barangay-modal').addEventListener('click', () => {
-                document.getElementById('barangay-modal').classList.remove('active');
-            });
-
-            // Close modals when clicking outside
-            window.addEventListener('click', (e) => {
-                if (e.target === document.getElementById('add-barangay-modal')) {
-                    document.getElementById('add-barangay-modal').classList.remove('active');
-                }
-                if (e.target === document.getElementById('barangay-modal')) {
-                    document.getElementById('barangay-modal').classList.remove('active');
-                }
-            });
-        }
-
-        function registerBarangay() {
-            const name = document.getElementById('barangay-name').value.trim();
-            const city = document.getElementById('barangay-city').value.trim();
-            const gmail = document.getElementById('barangay-gmail').value.trim();
-            const password = document.getElementById('barangay-password').value.trim();
-            const button = document.getElementById('add-barangay-button');
-            const message = document.getElementById('barangay-message');
-            
-            if (!name || !city || !gmail || !password) {
-                showMessage(message, 'Please fill in all required fields.', 'error');
-                return;
-            }
-            
-            if (!isValidEmail(gmail)) {
-                showMessage(message, 'Please enter a valid email address.', 'error');
-                return;
-            }
-            
-            if (password.length < 6) {
-                showMessage(message, 'Password must be at least 6 characters long.', 'error');
-                return;
-            }
-            
-            // Disable button to prevent multiple submissions
-            button.disabled = true;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
-            
-            console.log("Starting barangay registration..."); // Debug log
-            
-            auth.createUserWithEmailAndPassword(gmail, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    
-                    const barangayRef = database.ref('pendingBarangays/' + user.uid);
-                    return barangayRef.set({
-                        name: name,
-                        city: city,
-                        gmail: gmail,
-                        status: 'pending',
-                        createdAt: new Date().toISOString(),
-                        userId: user.uid
-                    });
-                })
-                .then(() => {
-                    console.log("Barangay registered successfully"); // Debug log
-                    showMessage(message, `Barangay "${name}" registered successfully! Awaiting admin approval.`, 'success');
-                    button.innerHTML = '<i class="fas fa-plus-circle"></i> Register Barangay';
-                    
-                    // Clear the form
-                    document.getElementById('barangay-name').value = '';
-                    document.getElementById('barangay-city').value = '';
-                    document.getElementById('barangay-gmail').value = '';
-                    document.getElementById('barangay-password').value = '';
-                    
-                    // Send notification to admin
-                    sendAdminNotification(name, gmail);
-                    
-                    // Close modal after successful registration
-                    setTimeout(() => {
-                        document.getElementById('add-barangay-modal').classList.remove('active');
-                        button.disabled = false;
-                    }, 2000);
-                })
-                .catch((error) => {
-                    console.error("Registration error:", error); // Debug log
-                    let errorMsg = 'Failed to register barangay. ';
-                    if (error.code === 'auth/email-already-in-use') {
-                        errorMsg = 'This email is already registered.';
-                    } else if (error.code === 'auth/invalid-email') {
-                        errorMsg = 'Invalid email address format.';
-                    } else if (error.code === 'auth/weak-password') {
-                        errorMsg = 'Password is too weak.';
-                    } else {
-                        errorMsg += error.message;
-                    }
-                    
-                    showMessage(message, errorMsg, 'error');
-                    button.disabled = false;
-                    button.innerHTML = '<i class="fas fa-plus-circle"></i> Register Barangay';
-                });
-        }
-
-        function sendAdminNotification(barangayName, email) {
-            const notificationsRef = database.ref('adminNotifications');
-            const newNotification = {
-                type: 'new_barangay',
-                title: 'New Barangay Registration',
-                message: `Barangay ${barangayName} has registered for an account (${email}). Please review and approve.`,
-                barangayName: barangayName,
-                barangayEmail: email,
-                timestamp: new Date().toISOString(),
-                read: false
-            };
-            
-            notificationsRef.push(newNotification)
-                .then(() => {
-                    console.log('Admin notification sent successfully');
-                })
-                .catch((error) => {
-                    console.error('Error sending admin notification:', error);
-                });
         }
 
         function setupDashboard() {
@@ -3096,6 +4039,13 @@
             setTimeout(() => {
                 initializeAdminCharts();
             }, 500);
+            
+            // Setup notification system for admin
+            setupNotificationSystem();
+            loadUserData();
+            
+            // Setup approval monitoring for active session
+            setupApprovalMonitoring();
         }
 
         function loadBarangayData() {
@@ -3413,20 +4363,6 @@
                 const text = row.textContent.toLowerCase();
                 row.style.display = text.includes(searchLower) ? '' : 'none';
             });
-        }
-
-        function checkLoginStatus() {
-            const userRole = localStorage.getItem('userRole');
-            if (userRole === 'admin') {
-                showAdminDashboard();
-            } else if (userRole === 'barangay') {
-                const barangayName = localStorage.getItem('barangayName');
-                // Redirect to barangay-specific page if logged in
-                redirectToBarangayPage(barangayName);
-            } else if (userRole === 'casidman' || userRole === 'central') {
-                // For specific barangays
-                redirectToBarangayPage(userRole);
-            }
         }
 
         function showLoginPage() {
@@ -3812,7 +4748,7 @@
             });
         }
 
-        // FIXED: Complete implementation of loadAllBarangays function
+        // Complete implementation of loadAllBarangays function
         function loadAllBarangays() {
             const container = document.getElementById('all-barangays-table-container');
             container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
