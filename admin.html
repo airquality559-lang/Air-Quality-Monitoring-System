@@ -2365,7 +2365,14 @@
         let approvedBarangays = [];
         let currentPage = 1;
         const itemsPerPage = 10;
-        let listenersInitialized = false; // Track if listeners are already set up
+        let listenersInitialized = false;
+
+        // Default Admin Account
+        const DEFAULT_ADMIN = {
+            email: "admin@airquality.com",
+            password: "Admin123!",
+            name: "System Administrator"
+        };
 
         // Chart instances tracking
         let chartInstances = {
@@ -2380,6 +2387,9 @@
         };
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize default admin account
+            initializeDefaultAdmin();
+            
             // Check if user is already logged in
             checkLoginStatus();
 
@@ -2408,6 +2418,129 @@
             setupPrintButtons();
         });
 
+        // NEW: Initialize default admin account
+        function initializeDefaultAdmin() {
+            console.log("Initializing default admin account...");
+            
+            // Check if default admin already exists in approved users
+            const approvedRef = database.ref('approvedUsers');
+            approvedRef.once('value').then((snapshot) => {
+                const approvedUsers = snapshot.val() || {};
+                let adminExists = false;
+                
+                // Check if any admin user exists
+                Object.values(approvedUsers).forEach(user => {
+                    if (user.role === 'admin' && user.status === 'approved') {
+                        adminExists = true;
+                    }
+                });
+                
+                if (!adminExists) {
+                    console.log("No admin found, creating default admin...");
+                    createDefaultAdminAccount();
+                } else {
+                    console.log("Admin account already exists");
+                // Auto-fill credentials even if admin exists
+                    setTimeout(() => {
+                        autoFillDefaultAdmin();
+                    }, 1000);
+                }
+            }).catch((error) => {
+                console.error("Error checking admin account:", error);
+            });
+        }
+
+        // NEW: Create default admin account
+        function createDefaultAdminAccount() {
+            // First create the user in Firebase Auth
+            auth.createUserWithEmailAndPassword(DEFAULT_ADMIN.email, DEFAULT_ADMIN.password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    console.log("Default admin created in Auth:", user.uid);
+                    
+                    // Add to approved users in database
+                    const approvedRef = database.ref('approvedUsers/' + user.uid);
+                    return approvedRef.set({
+                        name: DEFAULT_ADMIN.name,
+                        email: DEFAULT_ADMIN.email,
+                        role: 'admin',
+                        status: 'approved',
+                        approvedAt: new Date().toISOString(),
+                        userId: user.uid,
+                        isDefaultAdmin: true
+                    });
+                })
+                .then(() => {
+                    console.log("Default admin account created successfully!");
+                    
+                    // Auto-fill login form with default credentials for convenience
+                    autoFillDefaultAdmin();
+                })
+                .catch((error) => {
+                    console.error("Error creating default admin:", error);
+                    
+                    // If user already exists in Auth but not in database, add to database
+                    if (error.code === 'auth/email-already-in-use') {
+                        addExistingAdminToDatabase();
+                    }
+                });
+        }
+
+        // NEW: Add existing admin user to database
+        function addExistingAdminToDatabase() {
+            const approvedRef = database.ref('approvedUsers');
+            approvedRef.once('value').then((snapshot) => {
+                const approvedUsers = snapshot.val() || {};
+                let adminExists = false;
+                
+                Object.values(approvedUsers).forEach(user => {
+                    if (user.email === DEFAULT_ADMIN.email && user.role === 'admin') {
+                        adminExists = true;
+                    }
+                });
+                
+                if (!adminExists) {
+                    // Find the user UID by trying to sign in
+                    auth.signInWithEmailAndPassword(DEFAULT_ADMIN.email, DEFAULT_ADMIN.password)
+                        .then((userCredential) => {
+                            const user = userCredential.user;
+                            const approvedRef = database.ref('approvedUsers/' + user.uid);
+                            return approvedRef.set({
+                                name: DEFAULT_ADMIN.name,
+                                email: DEFAULT_ADMIN.email,
+                                role: 'admin',
+                                status: 'approved',
+                                approvedAt: new Date().toISOString(),
+                                userId: user.uid,
+                                isDefaultAdmin: true
+                            });
+                        })
+                        .then(() => {
+                            console.log("Existing admin added to database successfully!");
+                            autoFillDefaultAdmin();
+                            // Sign out after adding to database
+                            auth.signOut();
+                        })
+                        .catch((error) => {
+                            console.error("Error adding existing admin to database:", error);
+                        });
+                }
+            });
+        }
+
+        // NEW: Auto-fill login form with default admin credentials
+        function autoFillDefaultAdmin() {
+            document.getElementById('email').value = DEFAULT_ADMIN.email;
+            document.getElementById('password').value = DEFAULT_ADMIN.password;
+            document.getElementById('role').value = 'admin';
+            
+            // Show helpful message
+            const message = document.getElementById('error-message');
+            message.textContent = 'Default admin credentials loaded. Click Login to continue.';
+            message.className = 'message success';
+            message.style.display = 'block';
+        }
+
         // UPDATED: Check login status and redirect if already logged in
         function checkLoginStatus() {
             const userRole = localStorage.getItem('userRole');
@@ -2425,8 +2558,122 @@
                     // For specific barangays like casidman, central
                     showBarangayDashboard(userRole);
                 }
+            } else {
+                // Auto-fill default admin credentials if no user is logged in
+                setTimeout(() => {
+                    autoFillDefaultAdmin();
+                }, 1000);
             }
-            // If no user is logged in, stay on the login page (default behavior)
+        }
+
+        // UPDATED: Handle login with default admin support
+        function handleLogin(e) {
+            e.preventDefault();
+            const loginButton = document.getElementById('login-button');
+            loginButton.disabled = true;
+            loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const roleValue = document.getElementById('role').value;
+
+            if (!email || !password || !roleValue) {
+                showError('Please fill in all fields.');
+                loginButton.disabled = false;
+                loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+                return;
+            }
+
+            // NEW: Special handling for default admin
+            if (email === DEFAULT_ADMIN.email && password === DEFAULT_ADMIN.password && roleValue === 'admin') {
+                console.log("Default admin login attempt");
+                handleDefaultAdminLogin(email, password);
+                return;
+            }
+
+            // Determine role and email based on selection
+            let role, loginEmail, barangayName, barangayId;
+            
+            if (roleValue.startsWith('barangay_')) {
+                // Barangay role selected
+                role = 'barangay';
+                const selectedOption = document.getElementById('role').selectedOptions[0];
+                loginEmail = selectedOption.getAttribute('data-email');
+                barangayName = selectedOption.getAttribute('data-name');
+                barangayId = selectedOption.getAttribute('data-id');
+                
+                // Auto-fill the email field with barangay email
+                document.getElementById('email').value = loginEmail;
+            } else if (roleValue === 'admin') {
+                // Admin role
+                role = 'admin';
+                loginEmail = email;
+            } else {
+                // Regular user roles (casidman, central, etc.)
+                role = roleValue;
+                loginEmail = email;
+            }
+
+            checkUserApproval(loginEmail, password, role, barangayName, barangayId);
+        }
+
+        // NEW: Handle default admin login
+        function handleDefaultAdminLogin(email, password) {
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Check if admin exists in approved users
+                    const approvedRef = database.ref('approvedUsers');
+                    return approvedRef.once('value').then((snapshot) => {
+                        const approvedUsers = snapshot.val() || {};
+                        let adminApproved = false;
+                        
+                        Object.values(approvedUsers).forEach(user => {
+                            if (user.email === email && user.role === 'admin' && user.status === 'approved') {
+                                adminApproved = true;
+                            }
+                        });
+                        
+                        if (!adminApproved) {
+                            // Auto-approve default admin
+                            const user = userCredential.user;
+                            const approvedRef = database.ref('approvedUsers/' + user.uid);
+                            return approvedRef.set({
+                                name: DEFAULT_ADMIN.name,
+                                email: email,
+                                role: 'admin',
+                                status: 'approved',
+                                approvedAt: new Date().toISOString(),
+                                userId: user.uid,
+                                isDefaultAdmin: true
+                            });
+                        }
+                        return Promise.resolve();
+                    });
+                })
+                .then(() => {
+                    localStorage.setItem('userRole', 'admin');
+                    localStorage.setItem('userEmail', email);
+                    
+                    showSuccess();
+                    
+                    setTimeout(() => {
+                        showAdminDashboard();
+                    }, 2000);
+                })
+                .catch((error) => {
+                    let errorMsg = 'Invalid email or password.';
+                    if (error.code === 'auth/invalid-email') {
+                        errorMsg = 'Invalid email address format.';
+                    } else if (error.code === 'auth/user-not-found') {
+                        errorMsg = 'No account found with this email.';
+                    } else if (error.code === 'auth/wrong-password') {
+                        errorMsg = 'Incorrect password.';
+                    } else if (error.code === 'auth/user-disabled') {
+                        errorMsg = 'This account has been disabled.';
+                    }
+                    showError(errorMsg);
+                    resetLoginButton();
+                });
         }
 
         // Setup notification system
@@ -3128,8 +3375,10 @@
             checkRegularUserApproval(email, password, role);
         }
 
-        // Check admin approval
+        // UPDATED: Check admin approval with default admin support
         function checkAdminApproval(email, password) {
+            console.log("Checking admin approval for:", email);
+            
             const approvedUsersRef = database.ref('approvedUsers');
             approvedUsersRef.once('value').then((snapshot) => {
                 const approvedUsers = snapshot.val() || {};
@@ -3144,8 +3393,14 @@
                 if (isApprovedAdmin) {
                     performLogin(email, password, 'admin');
                 } else {
-                    showError('Admin account not approved or not found. Please contact system administrator.');
-                    resetLoginButton();
+                    // For default admin, auto-approve
+                    if (email === DEFAULT_ADMIN.email) {
+                        console.log("Auto-approving default admin");
+                        handleDefaultAdminLogin(email, password);
+                    } else {
+                        showError('Admin account not approved or not found. Please contact system administrator.');
+                        resetLoginButton();
+                    }
                 }
             }).catch((error) => {
                 console.error("Error checking admin approval:", error);
@@ -3197,50 +3452,6 @@
                 showError('Error checking account status. Please try again.');
                 resetLoginButton();
             });
-        }
-
-        // Handle login with proper role detection
-        function handleLogin(e) {
-            e.preventDefault();
-            const loginButton = document.getElementById('login-button');
-            loginButton.disabled = true;
-            loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
-
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const roleValue = document.getElementById('role').value;
-
-            if (!email || !password || !roleValue) {
-                showError('Please fill in all fields.');
-                loginButton.disabled = false;
-                loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
-                return;
-            }
-
-            // Determine role and email based on selection
-            let role, loginEmail, barangayName, barangayId;
-            
-            if (roleValue.startsWith('barangay_')) {
-                // Barangay role selected
-                role = 'barangay';
-                const selectedOption = document.getElementById('role').selectedOptions[0];
-                loginEmail = selectedOption.getAttribute('data-email');
-                barangayName = selectedOption.getAttribute('data-name');
-                barangayId = selectedOption.getAttribute('data-id');
-                
-                // Auto-fill the email field with barangay email
-                document.getElementById('email').value = loginEmail;
-            } else if (roleValue === 'admin') {
-                // Admin role
-                role = 'admin';
-                loginEmail = email;
-            } else {
-                // Regular user roles (casidman, central, etc.)
-                role = roleValue;
-                loginEmail = email;
-            }
-
-            checkUserApproval(loginEmail, password, role, barangayName, barangayId);
         }
 
         // Setup approval monitoring for active sessions
