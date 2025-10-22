@@ -1882,8 +1882,8 @@
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <div class="stat-info">
-                                <h3 id="approved-barangays">0</h3>
-                                <p>Approved Barangays</p>
+                                <h3 id="user-approved">0</h3>
+                                <p>User Approved</p>
                             </div>
                         </div>
                         <div class="stat-card">
@@ -2296,7 +2296,7 @@
         </div>
     </div>
 
-    <!-- Add User Modal -->
+    <!-- Add User Modal - UPDATED: Removed User Role field -->
     <div class="modal" id="add-user-modal">
         <div class="modal-content">
             <span class="close-modal" id="close-user">&times;</span>
@@ -2311,15 +2311,6 @@
             <div class="input-group">
                 <label for="user-email">Email Address</label>
                 <input type="email" id="user-email" class="modal-input" placeholder="Enter email address" required>
-            </div>
-            
-            <div class="input-group">
-                <label for="user-role">User Role</label>
-                <select id="user-role" class="modal-input">
-                    <option value="barangay">Barangay User</option>
-                    <option value="viewer">Viewer</option>
-                    <option value="analyst">Data Analyst</option>
-                </select>
             </div>
             
             <div class="input-group">
@@ -2389,7 +2380,7 @@
         };
 
         document.addEventListener('DOMContentLoaded', function() {
-            // FIXED: Check login status without auto-login
+            // Check if user is already logged in
             checkLoginStatus();
 
             // Initialize particles
@@ -2415,71 +2406,27 @@
 
             // Print functionality
             setupPrintButtons();
-
-            // Load user data for admin
-            if (localStorage.getItem('userRole') === 'admin') {
-                loadUserData();
-                setupNotificationSystem();
-            }
         });
 
-        // FIXED: Check login status - only redirect if user is logged in
+        // UPDATED: Check login status and redirect if already logged in
         function checkLoginStatus() {
             const userRole = localStorage.getItem('userRole');
             const userEmail = localStorage.getItem('userEmail');
             
-            // Only redirect if user is logged in
             if (userEmail && userRole) {
-                // Verify the user is still approved
-                const approvedUsersRef = database.ref('approvedUsers');
-                const approvedBarangaysRef = database.ref('approvedBarangays');
-                
-                Promise.all([
-                    approvedUsersRef.once('value'),
-                    approvedBarangaysRef.once('value')
-                ]).then(([approvedUsersSnapshot, approvedBarangaysSnapshot]) => {
-                    const approvedUsers = approvedUsersSnapshot.val() || {};
-                    const approvedBarangays = approvedBarangaysSnapshot.val() || {};
-                    
-                    let isStillApproved = false;
-                    
-                    // Check if user is an approved user
-                    Object.values(approvedUsers).forEach(user => {
-                        if (user.email === userEmail && user.status === 'approved') {
-                            isStillApproved = true;
-                        }
-                    });
-                    
-                    // If not found in users, check if it's an approved barangay
-                    if (!isStillApproved && userRole === 'barangay') {
-                        Object.values(approvedBarangays).forEach(barangay => {
-                            if (barangay.gmail === userEmail && barangay.status === 'approved') {
-                                isStillApproved = true;
-                            }
-                        });
-                    }
-                    
-                    if (isStillApproved) {
-                        if (userRole === 'admin') {
-                            showAdminDashboard();
-                        } else if (userRole === 'barangay') {
-                            const barangayName = localStorage.getItem('barangayName');
-                            redirectToBarangayPage(barangayName);
-                        } else {
-                            // For regular users
-                            redirectToUserDashboard(userRole);
-                        }
-                    } else {
-                        // User is no longer approved, force logout
-                        localStorage.removeItem('userRole');
-                        localStorage.removeItem('userEmail');
-                        localStorage.removeItem('barangayName');
-                        localStorage.removeItem('barangayId');
-                        showError('Your account is no longer approved. Please contact administrator.');
-                    }
-                });
+                console.log('User is already logged in as:', userRole);
+                // User is logged in, redirect to appropriate dashboard
+                if (userRole === 'admin') {
+                    showAdminDashboard();
+                } else if (userRole === 'barangay') {
+                    const barangayName = localStorage.getItem('barangayName');
+                    showBarangayDashboard(barangayName);
+                } else {
+                    // For specific barangays like casidman, central
+                    showBarangayDashboard(userRole);
+                }
             }
-            // If no user is logged in, stay on the login page
+            // If no user is logged in, stay on the login page (default behavior)
         }
 
         // Setup notification system
@@ -2730,11 +2677,10 @@
             });
         }
 
-        // Register user function
+        // UPDATED: Register user function - removed role selection
         function registerUser() {
             const name = document.getElementById('user-name').value.trim();
             const email = document.getElementById('user-email').value.trim();
-            const role = document.getElementById('user-role').value;
             const password = document.getElementById('user-password').value.trim();
             const confirmPassword = document.getElementById('user-confirm-password').value.trim();
             const button = document.getElementById('add-user-button');
@@ -2794,12 +2740,12 @@
                 
                 const user = userCredential.user;
                 
-                // Add user to pending users
+                // Add user to pending users - set role as 'user' by default
                 const userRef = database.ref('pendingUsers/' + user.uid);
                 return userRef.set({
                     name: name,
                     email: email,
-                    role: role,
+                    role: 'user', // Default role
                     status: 'pending',
                     createdAt: new Date().toISOString(),
                     userId: user.uid
@@ -2816,7 +2762,7 @@
                 document.getElementById('user-confirm-password').value = '';
                 
                 // Send notification to admin
-                sendAdminUserNotification(name, email, role);
+                sendAdminUserNotification(name, email, 'user');
                 
                 // Close modal after successful registration
                 setTimeout(() => {
@@ -2888,6 +2834,9 @@
                 
                 // CHANGED: Update user accounts count
                 document.getElementById('user-accounts').textContent = Object.keys(approvedUsers).length;
+                
+                // UPDATED: Update user approved count (not barangay count)
+                document.getElementById('user-approved').textContent = Object.keys(approvedUsers).length;
             }).catch(error => {
                 console.error("Error loading user data:", error);
                 pendingContainer.innerHTML = approvedContainer.innerHTML = `
@@ -3345,7 +3294,6 @@
             });
         }
 
-        // Rest of the existing functions remain the same...
         function setupPrintButtons() {
             // Admin print button
             document.getElementById('print-history-btn').addEventListener('click', function() {
@@ -4048,6 +3996,7 @@
             setupApprovalMonitoring();
         }
 
+        // UPDATED: Load barangay data - fixed to not count user approvals in barangay totals
         function loadBarangayData() {
             console.log("Loading barangay data..."); // Debug log
             
@@ -4063,7 +4012,13 @@
                     // Track processed barangays to avoid duplicates
                     const processedBarangays = new Set();
                     
+                    // Only count barangays from barangay collections, not user collections
                     Object.keys(allData).forEach(location => {
+                        // Skip user collections
+                        if (location.includes('User') || location === 'adminNotifications') {
+                            return;
+                        }
+                        
                         const node = allData[location];
                         if (node && typeof node === 'object') {
                             Object.keys(node).forEach(key => {
@@ -4182,9 +4137,8 @@
                     `;
                 }
                 
-                // Update stats
+                // Update stats - CHANGED: Renamed "Approved Barangays" to "User Approved"
                 document.getElementById('pending-barangays').textContent = pendingCount;
-                document.getElementById('approved-barangays').textContent = approvedCount;
                 document.getElementById('total-barangays').textContent = pendingCount + approvedCount;
                 
                 // Add event listeners
@@ -4748,7 +4702,7 @@
             });
         }
 
-        // Complete implementation of loadAllBarangays function
+        // UPDATED: Complete implementation of loadAllBarangays function - shows barangay names only
         function loadAllBarangays() {
             const container = document.getElementById('all-barangays-table-container');
             container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
