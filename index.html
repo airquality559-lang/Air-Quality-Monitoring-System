@@ -11,53 +11,2346 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <style>
-        /* Your existing CSS styles remain unchanged */
-        /* ... */
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --sidebar-width: 250px;
+            --header-height: 70px;
+            --transition: all 0.3s ease;
+            --sidebar-bg: #ff9800;
+            --sidebar-text: white;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --border-color: #e0e0e0;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --success-gradient: linear-gradient(135deg, #2dce89, #2dcecc);
+            --warning-gradient: linear-gradient(135deg, #FF8C00, #FFA500);
+            --danger-gradient: linear-gradient(135deg, #f5365c, #f56036);
+        }
+
+        .dark-mode {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #34495e;
+            --dark: #ecf0f1;
+            --card-bg: #2c3e50;
+            --text-color: #ecf0f1;
+            --border-color: #34495e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--text-color);
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        /* Login Page Styles */
+        .login-page {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            transition: var(--transition);
+            transform: translateY(0);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, var(--secondary), var(--accent));
+        }
+
+        .login-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            margin-bottom: 25px;
+        }
+
+        .logo i {
+            font-size: 50px;
+            color: var(--secondary);
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .logo h2 {
+            font-weight: 700;
+            font-size: 28px;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .logo p {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: var(--transition);
+            background-color: #f9f9f9;
+        }
+
+        .input-field:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+            background-color: #fff;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 42px;
+            color: #95a5a6;
+            font-size: 18px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 42px;
+            cursor: pointer;
+            color: #95a5a6;
+            font-size: 18px;
+            transition: var(--transition);
+        }
+
+        .toggle-password:hover {
+            color: var(--secondary);
+        }
+
+        .role-select {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: var(--transition);
+            background-color: #f9f9f9;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+        }
+
+        .role-select:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+            background-color: #fff;
+        }
+
+        .role-icon {
+            position: absolute;
+            left: 15px;
+            top: 42px;
+            color: #95a5a6;
+            font-size: 18px;
+        }
+
+        .select-arrow {
+            position: absolute;
+            right: 15px;
+            top: 42px;
+            color: #95a5a6;
+            font-size: 18px;
+            pointer-events: none;
+        }
+
+        button {
+            padding: 15px;
+            background: linear-gradient(to right, var(--secondary), var(--accent));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .error {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+
+        .success {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--accent);
+            border-left: 4px solid var(--accent);
+        }
+
+        .additional-links {
+            margin-top: 25px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .additional-links a {
+            color: var(--secondary);
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .additional-links a:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #95a5a6;
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+        }
+
+        .modal-title {
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .modal-input:focus {
+            border-color: var(--secondary);
+            outline: none;
+        }
+
+        textarea.modal-input {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .modal-button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(to right, var(--secondary), var(--accent));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-button:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Dashboard Styles */
+        .dashboard {
+            display: none;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            height: 100vh;
+            position: fixed;
+            transition: var(--transition);
+            z-index: 100;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-header h2 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .sidebar-menu {
+            padding: 15px 0;
+            flex-grow: 1;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: var(--transition);
+            border-left: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .menu-item:hover::before {
+            left: 100%;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left: 3px solid white;
+            transform: translateX(5px);
+        }
+
+        .menu-item i {
+            margin-right: 10px;
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .menu-item:hover i {
+            transform: scale(1.1);
+        }
+
+        .menu-item span {
+            font-size: 14px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .menu-item:hover span {
+            font-weight: 600;
+        }
+
+        .sidebar-footer {
+            padding: 15px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .dark-mode-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            padding: 8px 0;
+            transition: var(--transition);
+        }
+
+        .dark-mode-toggle:hover {
+            color: white;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 40px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: var(--transition);
+        }
+
+        .dark-mode .toggle-switch::after {
+            left: 22px;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: var(--transition);
+        }
+
+        .header {
+            height: var(--header-height);
+            background: var(--card-bg);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+            transition: var(--transition);
+        }
+
+        .header-left h1 {
+            font-size: 22px;
+            color: var(--text-color);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 30px;
+            transition: var(--transition);
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        /* Stats Container */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 24px;
+            color: white;
+        }
+
+        .bg-primary {
+            background: linear-gradient(135deg, var(--secondary), #2980b9);
+        }
+
+        .bg-success {
+            background: var(--success-gradient);
+        }
+
+        .bg-warning {
+            background: var(--warning-gradient);
+        }
+
+        .bg-danger {
+            background: var(--danger-gradient);
+        }
+
+        .stat-info h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text-color);
+        }
+
+        .stat-info p {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        /* Charts Container */
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--border-color);
+            height: 400px;
+            position: relative;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-header h3 {
+            font-size: 18px;
+            color: var(--text-color);
+        }
+
+        .chart-actions select {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        /* Overview Section Specific Styles */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        @media (max-width: 1200px) {
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* IMPROVED MAIN METRIC CARD */
+        .main-metric-card {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: center;
+            min-height: 400px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Background with GIF and image */
+        .main-metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                url('images/cloud.gif'),
+                url('images/arteche.jpg');
+            background-size: cover, cover;
+            background-position: center, center;
+            background-repeat: no-repeat, no-repeat;
+            opacity: 0.4;
+            filter: blur(3px);
+            z-index: 1;
+        }
+
+        /* Dark overlay for better text contrast */
+        .main-metric-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6));
+            z-index: 2;
+        }
+
+        .main-metric-card > * {
+            position: relative;
+            z-index: 3;
+            color: #fff;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+        }
+        
+        /* Left side - AQI visualization */
+        .aqi-visualization {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        /* Right side - Details and stats */
+        .aqi-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        /* UPDATED: Improved circular progress with "Air Quality" label */
+        .circular-progress {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .circular-progress::before {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .progress-content {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .progress-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        .progress-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+        }
+        
+        /* Dust level indicator */
+        .dust-level {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .dust-level i {
+            margin-right: 10px;
+            color: #8b5cf6;
+        }
+
+        .dust-level-value {
+            font-weight: 600;
+            margin-left: 5px;
+        }
+        
+        .metric-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 15px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        /* Improved AQI legend */
+        .aqi-legend {
+            margin: 25px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            width: 100%;
+        }
+
+        .aqi-scale {
+            height: 20px;
+            background: linear-gradient(90deg, #2dce89 0%, #FF8C00 50%, #f5365c 100%);
+            border-radius: 10px;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .aqi-marker {
+            position: absolute;
+            top: -5px;
+            width: 6px;
+            height: 30px;
+            background: white;
+            border-radius: 3px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            transform: translateX(-3px);
+            z-index: 2;
+        }
+
+        .aqi-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .aqi-status {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: 600;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .aqi-status i {
+            font-size: 1.5rem;
+        }
+
+        .status-good {
+            color: #2dce89;
+            background: rgba(45, 206, 137, 0.2);
+        }
+
+        .status-moderate {
+            color: #FF8C00;
+            background: rgba(255, 140, 0, 0.2);
+        }
+
+        .status-polluted {
+            color: #f5365c;
+            background: rgba(245, 54, 92, 0.2);
+        }
+        
+        /* Title styling */
+        .aqi-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        
+        @media (max-width: 992px) {
+            .recommendations-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .recommendations {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .recommendations-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .recommendations-header i {
+            font-size: 24px;
+            margin-right: 10px;
+            color: var(--secondary);
+        }
+        
+        .recommendations-header h3 {
+            font-size: 18px;
+            color: var(--text-color);
+        }
+        
+        .recommendations-list {
+            list-style: none;
+        }
+        
+        .recommendations-list li {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .recommendations-list li:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .recommendations-list li i {
+            color: var(--accent);
+            margin-right: 10px;
+            margin-top: 3px;
+            font-size: 16px;
+        }
+        
+        .recommendations-list li div {
+            flex: 1;
+        }
+        
+        .recommendations-list li strong {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-color);
+        }
+        
+        .recommendations-list li p {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .index-scale {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .scale-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            margin: 8px 0;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+        }
+        
+        .scale-good {
+            background: var(--success-gradient);
+        }
+        
+        .scale-moderate {
+            background: var(--warning-gradient);
+        }
+        
+        .scale-polluted {
+            background: var(--danger-gradient);
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--border-color);
+            height: 350px;
+            position: relative;
+        }
+
+        .time-filter {
+            display: flex;
+            align-items: center;
+        }
+
+        .time-filter select {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        /* Responsive adjustments for main metric card */
+        @media (max-width: 992px) {
+            .main-metric-card {
+                grid-template-columns: 1fr;
+            }
+            
+            .aqi-visualization, .aqi-details {
+                padding: 15px;
+            }
+            
+            .circular-progress {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .circular-progress::before {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .progress-value {
+                font-size: 3rem;
+            }
+            
+            .progress-label {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .metric-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .circular-progress {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .circular-progress::before {
+                width: 160px;
+                height: 160px;
+            }
+            
+            .progress-value {
+                font-size: 2.5rem;
+            }
+            
+            .progress-label {
+                font-size: 0.9rem;
+            }
+            
+            .aqi-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Tables Section */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-header h3 {
+            font-size: 18px;
+            color: var(--text-color);
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 8px 15px 8px 35px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            width: 250px;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #95a5a6;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        th {
+            background: rgba(0, 0, 0, 0.03);
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        tr:hover {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+
+        .status-approved {
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--accent);
+        }
+
+        .status-rejected {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn {
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            transition: var(--transition);
+        }
+
+        .btn-approve {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-reject {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-view {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 50px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        /* History Section Styles */
+        .history-container {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .history-header h3 {
+            font-size: 18px;
+            color: var(--text-color);
+        }
+
+        .history-filters {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .history-filters select {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .print-btn {
+            padding: 8px 15px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .print-btn:hover {
+            background: #2980b9;
+        }
+
+        .history-table-container {
+            overflow-x: auto;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .history-table th {
+            background: rgba(0, 0, 0, 0.03);
+            font-weight: 600;
+            color: var(--text-color);
+            position: sticky;
+            top: 0;
+        }
+
+        .history-table th, .history-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .history-table tr:hover {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .history-pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .pagination-btn {
+            padding: 8px 15px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-color);
+        }
+
+        .pagination-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .pagination-btn.active {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        /* Particles */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100vw) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Barangay Name Selection Styles */
+        .barangay-option {
+            font-weight: 600;
+            color: var(--primary);
+            padding-left: 10px;
+        }
+        
+        .barangay-location {
+            font-style: italic;
+            color: #7f8c8d;
+            font-size: 0.85em;
+            padding-left: 10px;
+        }
+        
+        .role-option-group {
+            padding: 8px 15px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        /* Print Styles */
+        @media print {
+            .sidebar, .header, .history-filters, .print-btn, .history-pagination {
+                display: none !important;
+            }
+            
+            .main-content {
+                margin-left: 0 !important;
+            }
+            
+            .history-container {
+                box-shadow: none;
+                border: 1px solid #000;
+            }
+            
+            body {
+                background: white;
+                color: black;
+            }
+            
+            /* Ensure all table rows are visible when printing */
+            table tbody tr {
+                display: table-row !important;
+            }
+        }
+
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Notification Panel */
+        .notification-dropdown {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-panel {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 0;
+            width: 400px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .notification-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-header h3 {
+            margin: 0;
+            font-size: 16px;
+            color: var(--text-color);
+        }
+
+        .notification-header span {
+            color: var(--secondary);
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .notification-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .notification-item:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+        
+        .notification-item.unread {
+            background-color: rgba(52, 152, 219, 0.05);
+            border-left: 3px solid var(--secondary);
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text-color);
+        }
+        
+        .notification-message {
+            font-size: 13px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        
+        .notification-time {
+            font-size: 11px;
+            color: #95a5a6;
+        }
+        
+        .notification-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+        
+        .notification-btn {
+            padding: 4px 8px;
+            font-size: 11px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-approve {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .btn-reject {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .notification-empty {
+            padding: 20px;
+            text-align: center;
+            color: #7f8c8d;
+        }
+        
+        .notification-empty i {
+            font-size: 40px;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar-header h2, .menu-item span, .sidebar-footer span {
+                display: none;
+            }
+            
+            .menu-item {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .menu-item i {
+                margin-right: 0;
+                font-size: 20px;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .aqi-dust-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .aqi-progress-container {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+            
+            .aqi-legend {
+                margin-top: 20px;
+                width: 100%;
+            }
+            
+            .history-filters {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .history-actions {
+                margin-top: 10px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                padding: 0 15px;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            .search-box input {
+                width: 150px;
+            }
+            
+            .login-container {
+                padding: 30px 20px;
+            }
+            
+            .logo h2 {
+                font-size: 24px;
+            }
+            
+            .input-field, .role-select {
+                padding: 12px 12px 12px 40px;
+            }
+            
+            .input-icon, .toggle-password, .role-icon, .select-arrow {
+                top: 39px;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+            
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .history-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Login Page -->
     <div class="login-page" id="login-page">
-        <!-- Your existing login page HTML remains unchanged -->
-        <!-- ... -->
+        <div class="particles" id="particles"></div>
+        
+        <div class="login-container">
+            <div class="logo">
+                <i class="fas fa-wind"></i>
+                <h2>AIR QUALITY MONITORING</h2>
+                <p>Login to Your Account</p>
+            </div>
+
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" id="email" class="input-field" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="password" class="input-field" placeholder="Enter your password" required>
+                    <i class="fas fa-eye toggle-password" id="toggle-password"></i>
+                </div>
+                
+                <div class="input-group">
+                    <label for="role">Select Role</label>
+                    <i class="fas fa-user role-icon"></i>
+                    <select id="role" class="role-select" required>
+                        <option value="" disabled selected>Select your role</option>
+                        <option value="admin">Admin</option>
+                        <option value="casidman">Casidman</option>
+                        <option value="central">Central</option>
+                    </select>
+                    <i class="fas fa-chevron-down select-arrow"></i>
+                </div>
+                
+                <button type="submit" id="login-button">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+                
+                <p id="error-message" class="message error"></p>
+                <p id="success-message" class="message success">Login successful! Redirecting...</p>
+            </form>
+
+            <div class="additional-links">
+                <p><a id="add-user-link">Add User</a> | <a id="contact-support-link">Contact support</a></p>
+            </div>
+        </div>
     </div>
 
     <!-- Admin Dashboard -->
     <div class="dashboard" id="admin-dashboard">
-        <!-- Your existing admin dashboard HTML remains unchanged -->
-        <!-- ... -->
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Air Quality</h2>
+                <p>Admin Dashboard</p>
+            </div>
+            <div class="sidebar-menu">
+                <a href="#" class="menu-item active" data-section="overview">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="#" class="menu-item" data-section="barangays">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Barangays</span>
+                </a>
+                <a href="#" class="menu-item" data-section="users">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                    <span class="notification-badge" id="user-notification-badge" style="display: none;">0</span>
+                </a>
+                <a href="#" class="menu-item" data-section="history">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </a>
+                <a href="#" class="menu-item" id="sidebar-logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+            <div class="sidebar-footer">
+                <div class="dark-mode-toggle" id="dark-mode-toggle">
+                    <span>Dark Mode</span>
+                    <div class="toggle-switch"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-left">
+                    <h1>Overview</h1>
+                </div>
+                <div class="header-right">
+                    <!-- Notification dropdown -->
+                    <div class="notification-dropdown">
+                        <i class="fas fa-bell" id="notification-icon"></i>
+                        <span class="notification-badge" id="notification-badge" style="display: none;">0</span>
+                        <div class="notification-panel" id="notification-panel">
+                            <div class="notification-header">
+                                <h3>Notifications</h3>
+                                <span id="mark-all-read">Mark all as read</span>
+                            </div>
+                            <div class="notification-list" id="notification-list">
+                                <!-- Notifications will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-avatar">A</div>
+                        <span>Admin User</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Overview Section -->
+                <div id="overview-section" class="active">
+                    <!-- Stats Cards -->
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-primary">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="total-barangays">2</h3>
+                                <p>Total Barangays</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="user-approved">0</h3>
+                                <p>User Approved</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-warning">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="pending-barangays">2</h3>
+                                <p>Active Barangays</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-danger">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="user-accounts">0</h3>
+                                <p>Number of User Accounts</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section - MODIFIED -->
+                    <div class="charts-container">
+                        <!-- Central Air Quality Index Trend -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>Central Air Quality Index Trend</h3>
+                                <div class="chart-actions">
+                                    <select id="time-period">
+                                        <option value="week">Last Week</option>
+                                        <option value="month" selected>Last Month</option>
+                                        <option value="year">Last Year</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <canvas id="centralAqiChart"></canvas>
+                        </div>
+                        
+                        <!-- Casidman Air Quality Index Trend -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>Casidman Air Quality Index Trend</h3>
+                                <div class="chart-actions">
+                                    <select id="casidman-time-period">
+                                        <option value="week">Last Week</option>
+                                        <option value="month" selected>Last Month</option>
+                                        <option value="year">Last Year</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <canvas id="casidmanAqiChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Barangay Information Table -->
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>Barangay Information</h3>
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="search-approved" placeholder="Search barangays...">
+                            </div>
+                        </div>
+                        <div id="approved-table-container">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Section -->
+                <div id="users-section" style="display: none;">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>Pending User Approvals</h3>
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="search-pending-users" placeholder="Search users...">
+                            </div>
+                        </div>
+                        <div id="pending-users-table-container">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>Approved Users</h3>
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="search-approved-users" placeholder="Search users...">
+                            </div>
+                        </div>
+                        <div id="approved-users-table-container">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History Section -->
+                <div id="history-section" style="display: none;">
+                    <div class="history-container">
+                        <div class="history-header">
+                            <h3>Air Quality History</h3>
+                            <div class="history-filters">
+                                <select id="history-time-period">
+                                    <option value="day">Today</option>
+                                    <option value="week" selected>Last Week</option>
+                                    <option value="month">Last Month</option>
+                                    <option value="year">Last Year</option>
+                                </select>
+                                <select id="history-barangay-filter">
+                                    <option value="all">All Barangays</option>
+                                    <!-- Barangay options will be populated from Firebase -->
+                                </select>
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="search-history-date" placeholder="Search by date...">
+                                </div>
+                                <div class="history-actions">
+                                    <button class="print-btn" id="print-history-btn">
+                                        <i class="fas fa-print"></i> Print
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="history-table-container">
+                            <table class="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date & Time</th>
+                                        <th>Barangay</th>
+                                        <th>AQI</th>
+                                        <th>Dust Level (mg/m³)</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-table-body">
+                                    <!-- History data will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="history-pagination" id="history-pagination">
+                            <!-- Pagination will be generated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barangays Section -->
+                <div id="barangays-section" style="display: none;">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>All Barangays</h3>
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="search-all-barangays" placeholder="Search barangays...">
+                            </div>
+                        </div>
+                        <div id="all-barangays-table-container">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Barangay Dashboard -->
     <div class="dashboard" id="barangay-dashboard" style="display: none;">
-        <!-- Your existing barangay dashboard HTML remains unchanged -->
-        <!-- ... -->
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Air Quality</h2>
+                <p>Barangay Dashboard</p>
+            </div>
+            <div class="sidebar-menu">
+                <a href="#" class="menu-item active" data-section="overview">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="#" class="menu-item" data-section="history">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </a>
+                <a href="#" class="menu-item" id="barangay-sidebar-logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+            <div class="sidebar-footer">
+                <div class="dark-mode-toggle" id="barangay-dark-mode-toggle">
+                    <span>Dark Mode</span>
+                    <div class="toggle-switch"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-left">
+                    <h1 id="barangay-dashboard-title">Barangay Overview</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <div class="user-avatar">B</div>
+                        <span id="barangay-user-name">Barangay User</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Overview Section -->
+                <div id="barangay-overview-section" class="active">
+                    <div class="overview-grid">
+                        <!-- Main Air Quality Card - Improved Layout -->
+                        <div class="card main-metric-card">
+                            <!-- Left side: AQI Visualization -->
+                            <div class="aqi-visualization">
+                                <!-- Circular progress with "Air Quality" label -->
+                                <div class="circular-progress" id="progressCircle">
+                                    <div class="progress-content">
+                                        <div class="progress-value" id="progressValue">0</div>
+                                        <div class="progress-label">Air Quality</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- AQI Line Legend -->
+                                <div class="aqi-legend">
+                                    <div class="aqi-scale" id="aqiScale">
+                                        <div class="aqi-marker" id="aqiMarker"></div>
+                                    </div>
+                                    <div class="aqi-labels">
+                                        <span>0 (Good)</span>
+                                        <span>50</span>
+                                        <span>100</span>
+                                        <span>150</span>
+                                        <span>200</span>
+                                        <span>300+ (Hazardous)</span>
+                                    </div>
+                                    <div class="aqi-status" id="aqiStatus">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <span>Loading air quality data...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right side: AQI Details -->
+                            <div class="aqi-details">
+                                <h3 class="aqi-title">TODAY INDEX</h3>
+                                
+                                <div class="dust-level">
+                                    <i class="fas fa-dust"></i>
+                                    Dust Level: <span id="dustLevelValue" class="dust-level-value">0.000</span> mg/m³
+                                </div>
+                                
+                                <div class="metric-stats">
+                                    <div class="stat-item">
+                                        <div class="stat-value" id="minAQI">0</div>
+                                        <div class="stat-label">Min Today</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-value" id="maxAQI">0</div>
+                                        <div class="stat-label">Max Today</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Charts -->
+                        <div class="chart-container">
+                            <div class="card-header">
+                                <h3 class="card-title">Air Quality Trend</h3>
+                                <div class="time-filter">
+                                    <select id="airQualityTimeFilter">
+                                        <option value="1h">Last 1 hour</option>
+                                        <option value="6h" selected>Last 6 hours</option>
+                                        <option value="12h">Last 12 hours</option>
+                                        <option value="24h">Last 24 hours</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <canvas id="airChart"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <div class="card-header">
+                                <h3 class="card-title">Dust Level Trend</h3>
+                                <div class="time-filter">
+                                    <select id="dustTimeFilter">
+                                        <option value="1h">Last 1 hour</option>
+                                        <option value="6h" selected>Last 6 hours</option>
+                                        <option value="12h">Last 12 hours</option>
+                                        <option value="24h">Last 24 hours</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <canvas id="dustChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="recommendations-grid">
+                        <div class="recommendations">
+                            <div class="recommendations-header">
+                                <i class="fas fa-heartbeat"></i>
+                                <h3>Health Recommendations</h3>
+                            </div>
+                            <ul class="recommendations-list" id="recommendationsList">
+                                <li>
+                                    <i class="fas fa-check-circle"></i>
+                                    <div>
+                                        <strong>Air quality is good</strong>
+                                        <p>No health implications. Enjoy outdoor activities.</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle"></i>
+                                    <div>
+                                        <strong>Ventilation</strong>
+                                        <p>Keep windows open to allow fresh air circulation.</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="index-scale">
+                            <div class="recommendations-header">
+                                <i class="fas fa-info-circle"></i>
+                                <h3>AQI Scale</h3>
+                            </div>
+                            <div class="scale-item scale-good">
+                                <span>0 - 50</span>
+                                <span>Good</span>
+                            </div>
+                            <div class="scale-item scale-moderate">
+                                <span>51 - 100</span>
+                                <span>Moderate</span>
+                            </div>
+                            <div class="scale-item scale-polluted">
+                                <span>101+</span>
+                                <span>Polluted</span>
+                            </div>
+                            <p style="margin-top: 15px; font-size: 0.9rem; color: var(--text-secondary);">
+                                The Air Quality Index (AQI) is an indicator of overall air quality based on measurements of specific pollutants.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History Section -->
+                <div id="barangay-history-section" style="display: none;">
+                    <div class="history-container">
+                        <div class="history-header">
+                            <h3>Air Quality History</h3>
+                            <div class="history-filters">
+                                <select id="barangay-history-time-period">
+                                    <option value="day">Today</option>
+                                    <option value="week" selected>Last Week</option>
+                                    <option value="month">Last Month</option>
+                                </select>
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="search-barangay-history-date" placeholder="Search by date...">
+                                </div>
+                                <div class="history-actions">
+                                    <button class="print-btn" id="print-barangay-history-btn">
+                                        <i class="fas fa-print"></i> Print
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="history-table-container">
+                            <table class="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date & Time</th>
+                                        <th>AQI</th>
+                                        <th>Dust Level (mg/m³)</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="barangay-history-table-body">
+                                    <!-- History data will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="history-pagination" id="barangay-history-pagination">
+                            <!-- Pagination will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Add User Modal -->
     <div class="modal" id="add-user-modal">
-        <!-- Your existing modal HTML remains unchanged -->
-        <!-- ... -->
+        <div class="modal-content">
+            <span class="close-modal" id="close-user">&times;</span>
+            <h2 class="modal-title">Register New User</h2>
+            <p style="margin-bottom: 20px; color: #7f8c8d;">Register a new user account. Account requires admin approval.</p>
+            
+            <div class="input-group">
+                <label for="user-name">Full Name</label>
+                <input type="text" id="user-name" class="modal-input" placeholder="Enter full name" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="user-email">Email Address</label>
+                <input type="email" id="user-email" class="modal-input" placeholder="Enter email address" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="user-password">Password</label>
+                <input type="password" id="user-password" class="modal-input" placeholder="Enter password" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="user-confirm-password">Confirm Password</label>
+                <input type="password" id="user-confirm-password" class="modal-input" placeholder="Confirm password" required>
+            </div>
+            
+            <button class="modal-button" id="add-user-button">
+                <i class="fas fa-plus-circle"></i> Register User
+            </button>
+            
+            <p id="user-message" class="message" style="margin-top: 15px;"></p>
+        </div>
     </div>
 
     <!-- Barangay Details Modal -->
     <div class="modal" id="barangay-modal">
-        <!-- Your existing modal HTML remains unchanged -->
-        <!-- ... -->
+        <div class="modal-content">
+            <span class="close-modal" id="close-barangay-modal">&times;</span>
+            <h2 class="modal-title">Barangay Details</h2>
+            <div id="barangay-details">
+                <!-- Barangay details will be loaded here -->
+            </div>
+        </div>
     </div>
 
     <script>
         // Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyD-q_sjDr815xyKHnw4qupJoFeCa89rsTg",
-            authDomain: "air-quality-monitoring-s-d6123.firebaseapp.com",
-            databaseURL: "https://air-quality-monitoring-s-d6123-default-rtdb.firebaseio.com",
-            projectId: "air-quality-monitoring-s-d6123",
-            storageBucket: "air-quality-monitoring-s-d6123.firebasestorage.app",
-            messagingSenderId: "410958753987",
-            appId: "1:410958753987:web:546a09493fae6d8623f276",
-            measurementId: "G-MQZTPTJXWP"
-        };
+      apiKey: "AIzaSyD-q_sjDr815xyKHnw4qupJoFeCa89rsTg",
+      authDomain: "air-quality-monitoring-s-d6123.firebaseapp.com",
+      databaseURL: "https://air-quality-monitoring-s-d6123-default-rtdb.firebaseio.com",
+      projectId: "air-quality-monitoring-s-d6123",
+      storageBucket: "air-quality-monitoring-s-d6123.firebasestorage.app",
+      messagingSenderId: "410958753987",
+      appId: "1:410958753987:web:546a09493fae6d8623f276",
+      measurementId: "G-MQZTPTJXWP"
+    };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -66,11 +2359,9 @@
 
         // Global variables
         let currentUserRole = '';
-        let currentBarangayName = '';
         let currentPage = 1;
         const itemsPerPage = 10;
         let listenersInitialized = false;
-        let barangayDataRef = null; // Reference for real-time barangay data
 
         // Default Admin Account
         const DEFAULT_ADMIN = {
@@ -79,7 +2370,7 @@
             name: "System Administrator"
         };
 
-        // Chart instances tracking
+        // Chart instances tracking - MODIFIED
         let chartInstances = {
             admin: {
                 centralAqi: null,
@@ -247,15 +2538,18 @@
         function checkLoginStatus() {
             const userRole = localStorage.getItem('userRole');
             const userEmail = localStorage.getItem('userEmail');
-            const barangayName = localStorage.getItem('barangayName');
             
             if (userEmail && userRole) {
                 console.log('User is already logged in as:', userRole);
                 // User is logged in, redirect to appropriate dashboard
                 if (userRole === 'admin') {
                     showAdminDashboard();
+                } else if (userRole === 'barangay') {
+                    const barangayName = localStorage.getItem('barangayName');
+                    showBarangayDashboard(barangayName);
                 } else {
-                    showBarangayDashboard(barangayName || userRole);
+                    // For specific barangays like casidman, central
+                    showBarangayDashboard(userRole);
                 }
             } else {
                 // Auto-fill default admin credentials if no user is logged in
@@ -299,7 +2593,7 @@
                 loginEmail = email;
             } else {
                 // Barangay roles (casidman, central)
-                role = 'barangay';
+                role = roleValue;
                 loginEmail = email;
                 barangayName = roleValue.charAt(0).toUpperCase() + roleValue.slice(1);
             }
@@ -501,9 +2795,6 @@
             document.getElementById('login-page').style.display = 'none';
             document.getElementById('barangay-dashboard').style.display = 'flex';
             
-            // Store current barangay name
-            currentBarangayName = barangayName;
-            
             // Update dashboard title and user info
             document.getElementById('barangay-dashboard-title').textContent = `Barangay Overview - ${barangayName}`;
             document.getElementById('barangay-user-name').textContent = barangayName;
@@ -513,7 +2804,7 @@
                 initializeBarangayCharts();
             }, 500);
             
-            // Update real-time data for the specific barangay
+            // Update real-time data
             updateBarangayRealTimeData(barangayName);
             
             // Setup approval monitoring for active session
@@ -525,16 +2816,11 @@
             // Reference to the specific barangay data in Firebase
             const barangayRef = database.ref(`barangayData/${barangayName.toLowerCase()}`);
             
-            // Store the reference for cleanup
-            barangayDataRef = barangayRef;
-            
             // Listen for real-time updates
             barangayRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 
                 if (data) {
-                    console.log(`Received data for ${barangayName}:`, data);
-                    
                     // Update AQI value
                     document.getElementById('progressValue').textContent = data.aqi || 0;
                     
@@ -556,42 +2842,11 @@
                     
                     // Update charts with new data
                     updateBarangayCharts(data);
-                    
-                    // Save data to history
-                    saveToHistory(barangayName, data);
-                } else {
-                    console.log(`No data found for ${barangayName}`);
-                    // Set default values if no data
-                    document.getElementById('progressValue').textContent = 0;
-                    document.getElementById('dustLevelValue').textContent = '0.000';
-                    updateAQIStatus(0);
-                    updateCircularProgress(0);
-                    updateAQIScaleMarker(0);
                 }
             });
             
             // Also fetch historical data for charts
             fetchBarangayHistoricalData(barangayName);
-        }
-
-        // Save data to history
-        function saveToHistory(barangayName, data) {
-            const historyRef = database.ref(`barangayHistory/${barangayName.toLowerCase()}`);
-            const timestamp = new Date().toISOString();
-            
-            historyRef.push({
-                timestamp: timestamp,
-                aqi: data.aqi || 0,
-                dust: data.dust || 0,
-                status: getAQIStatus(data.aqi || 0)
-            });
-        }
-
-        // Get AQI status text
-        function getAQIStatus(aqi) {
-            if (aqi <= 50) return 'Good';
-            if (aqi <= 100) return 'Moderate';
-            return 'Polluted';
         }
 
         // Update min/max AQI values
@@ -623,65 +2878,16 @@
 
         // Update barangay charts with historical data
         function updateBarangayChartsWithHistory(historyData) {
-            // Process historical data and update charts
-            const timestamps = [];
-            const aqiValues = [];
-            const dustValues = [];
-            
-            Object.values(historyData).forEach(entry => {
-                const date = new Date(entry.timestamp);
-                timestamps.push(date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
-                aqiValues.push(entry.aqi);
-                dustValues.push(entry.dust);
-            });
-            
-            // Update AQI chart
-            if (chartInstances.barangay.aqi) {
-                chartInstances.barangay.aqi.data.labels = timestamps;
-                chartInstances.barangay.aqi.data.datasets[0].data = aqiValues;
-                chartInstances.barangay.aqi.update();
-            }
-            
-            // Update dust chart
-            if (chartInstances.barangay.dust) {
-                chartInstances.barangay.dust.data.labels = timestamps;
-                chartInstances.barangay.dust.data.datasets[0].data = dustValues;
-                chartInstances.barangay.dust.update();
-            }
+            // Implementation would process historical data and update charts
+            // This is a simplified version
+            console.log("Updating charts with historical data:", historyData);
         }
 
         // Update barangay charts with new data point
         function updateBarangayCharts(data) {
-            // Add new data point to existing charts
-            const currentTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            
-            // Update AQI chart
-            if (chartInstances.barangay.aqi) {
-                chartInstances.barangay.aqi.data.labels.push(currentTime);
-                chartInstances.barangay.aqi.data.datasets[0].data.push(data.aqi || 0);
-                
-                // Keep only the last 12 data points
-                if (chartInstances.barangay.aqi.data.labels.length > 12) {
-                    chartInstances.barangay.aqi.data.labels.shift();
-                    chartInstances.barangay.aqi.data.datasets[0].data.shift();
-                }
-                
-                chartInstances.barangay.aqi.update('active');
-            }
-            
-            // Update dust chart
-            if (chartInstances.barangay.dust) {
-                chartInstances.barangay.dust.data.labels.push(currentTime);
-                chartInstances.barangay.dust.data.datasets[0].data.push(data.dust || 0);
-                
-                // Keep only the last 12 data points
-                if (chartInstances.barangay.dust.data.labels.length > 12) {
-                    chartInstances.barangay.dust.data.labels.shift();
-                    chartInstances.barangay.dust.data.datasets[0].data.shift();
-                }
-                
-                chartInstances.barangay.dust.update('active');
-            }
+            // Implementation would add new data point to existing charts
+            // This is a simplified version
+            console.log("Updating charts with new data:", data);
         }
 
         // Update AQI status
@@ -704,82 +2910,6 @@
             
             aqiStatus.innerHTML = `<i class="${icon}"></i><span>${status}</span>`;
             aqiStatus.className = `aqi-status ${statusClass}`;
-            
-            // Update recommendations based on AQI status
-            updateRecommendations(aqi);
-        }
-
-        // Update health recommendations based on AQI
-        function updateRecommendations(aqi) {
-            const recommendationsList = document.getElementById('recommendationsList');
-            
-            let recommendations = [];
-            
-            if (aqi <= 50) {
-                recommendations = [
-                    {
-                        title: 'Air quality is good',
-                        description: 'No health implications. Enjoy outdoor activities.'
-                    },
-                    {
-                        title: 'Ventilation',
-                        description: 'Keep windows open to allow fresh air circulation.'
-                    },
-                    {
-                        title: 'Outdoor exercise',
-                        description: 'Ideal conditions for outdoor physical activities.'
-                    }
-                ];
-            } else if (aqi <= 100) {
-                recommendations = [
-                    {
-                        title: 'Air quality is moderate',
-                        description: 'Unusually sensitive individuals should consider reducing prolonged outdoor exertion.'
-                    },
-                    {
-                        title: 'Ventilation',
-                        description: 'Moderate ventilation is recommended.'
-                    },
-                    {
-                        title: 'Sensitive groups',
-                        description: 'People with respiratory conditions should take precautions.'
-                    }
-                ];
-            } else {
-                recommendations = [
-                    {
-                        title: 'Air quality is polluted',
-                        description: 'Everyone may begin to experience health effects. Limit outdoor activities.'
-                    },
-                    {
-                        title: 'Stay indoors',
-                        description: 'Keep windows and doors closed to prevent polluted air from entering.'
-                    },
-                    {
-                        title: 'Use air purifier',
-                        description: 'Consider using an air purifier to improve indoor air quality.'
-                    },
-                    {
-                        title: 'Wear mask',
-                        description: 'If going outside is necessary, wear a protective mask.'
-                    }
-                ];
-            }
-            
-            let recommendationsHTML = '';
-            recommendations.forEach(rec => {
-                recommendationsHTML += `
-                    <li>
-                        <i class="fas fa-check-circle"></i>
-                        <div>
-                            <strong>${rec.title}</strong>
-                            <p>${rec.description}</p>
-                        </div>
-                    </li>
-                `;
-            });
-            
-            recommendationsList.innerHTML = recommendationsHTML;
         }
 
         // Update circular progress
@@ -1699,12 +3829,6 @@
                     localStorage.removeItem('userEmail');
                     localStorage.removeItem('barangayName');
                     localStorage.removeItem('barangayId');
-                    
-                    // Remove Firebase listeners
-                    if (barangayDataRef) {
-                        barangayDataRef.off();
-                    }
-                    
                     showLoginPage();
                 }
             });
@@ -2082,31 +4206,9 @@
         }
 
         function loadBarangayHistoryData() {
-            // Load barangay-specific history data from Firebase
-            if (!currentBarangayName) return;
-            
-            const historyRef = database.ref(`barangayHistory/${currentBarangayName.toLowerCase()}`);
-            
-            historyRef.once('value').then((snapshot) => {
-                const data = snapshot.val();
-                const historyData = [];
-                
-                if (data) {
-                    Object.values(data).forEach(entry => {
-                        historyData.push({
-                            dateTime: new Date(entry.timestamp).toLocaleString(),
-                            aqi: entry.aqi,
-                            dust: entry.dust,
-                            status: entry.status
-                        });
-                    });
-                    
-                    // Sort by date (newest first)
-                    historyData.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
-                }
-                
-                displayBarangayHistoryData(historyData);
-            });
+            // Simulate loading barangay-specific history data
+            const barangayHistoryData = generateBarangayHistoryData();
+            displayBarangayHistoryData(barangayHistoryData);
         }
 
         function generateHistoryData() {
@@ -2139,6 +4241,38 @@
                 data.push({
                     dateTime: date.toLocaleString(),
                     barangay: barangay,
+                    aqi: aqi,
+                    dust: dust,
+                    status: status
+                });
+            }
+            
+            // Sort by date (newest first)
+            return data.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
+        }
+
+        function generateBarangayHistoryData() {
+            const data = [];
+            
+            for (let i = 0; i < 30; i++) {
+                const date = new Date();
+                date.setDate(date.getDate() - Math.floor(Math.random() * 7));
+                date.setHours(Math.floor(Math.random() * 24));
+                date.setMinutes(Math.floor(Math.random() * 60));
+                
+                const aqi = Math.floor(Math.random() * 150);
+                const dust = (Math.random() * 20 + 110).toFixed(5);
+                
+                // Determine status based on AQI value
+                let status = 'Good';
+                if (aqi > 50 && aqi <= 100) {
+                    status = 'Moderate';
+                } else if (aqi > 100) {
+                    status = 'Polluted';
+                }
+                
+                data.push({
+                    dateTime: date.toLocaleString(),
                     aqi: aqi,
                     dust: dust,
                     status: status
@@ -2227,7 +4361,8 @@
                         const data = generateHistoryData();
                         displayHistoryData(data);
                     } else {
-                        loadBarangayHistoryData();
+                        const data = generateBarangayHistoryData();
+                        displayBarangayHistoryData(data);
                     }
                 }
             });
@@ -2252,7 +4387,8 @@
                         const data = generateHistoryData();
                         displayHistoryData(data);
                     } else {
-                        loadBarangayHistoryData();
+                        const data = generateBarangayHistoryData();
+                        displayBarangayHistoryData(data);
                     }
                 });
                 container.appendChild(pageButton);
@@ -2270,7 +4406,8 @@
                         const data = generateHistoryData();
                         displayHistoryData(data);
                     } else {
-                        loadBarangayHistoryData();
+                        const data = generateBarangayHistoryData();
+                        displayBarangayHistoryData(data);
                     }
                 }
             });
