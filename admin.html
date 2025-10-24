@@ -1773,7 +1773,6 @@
                     <select id="role" class="role-select" required>
                         <option value="" disabled selected>Select your role</option>
                         <option value="admin">Admin</option>
-                        <!-- Barangay options will be populated here -->
                         <option value="casidman">Casidman</option>
                         <option value="central">Central</option>
                     </select>
@@ -1873,7 +1872,7 @@
                                 <i class="fas fa-map-marker-alt"></i>
                             </div>
                             <div class="stat-info">
-                                <h3 id="total-barangays">0</h3>
+                                <h3 id="total-barangays">2</h3>
                                 <p>Total Barangays</p>
                             </div>
                         </div>
@@ -1891,11 +1890,10 @@
                                 <i class="fas fa-clock"></i>
                             </div>
                             <div class="stat-info">
-                                <h3 id="pending-barangays">0</h3>
-                                <p>Pending Requests</p>
+                                <h3 id="pending-barangays">2</h3>
+                                <p>Active Barangays</p>
                             </div>
                         </div>
-                        <!-- CHANGED: Replaced "Poor Air Quality Areas" with "Number of User Accounts" -->
                         <div class="stat-card">
                             <div class="stat-icon bg-danger">
                                 <i class="fas fa-users"></i>
@@ -1930,26 +1928,10 @@
                         </div>
                     </div>
 
-                    <!-- Pending Barangays Table -->
+                    <!-- Barangay Information Table -->
                     <div class="table-container">
                         <div class="table-header">
-                            <h3>Pending Users Registrations</h3>
-                            <div class="search-box">
-                                <i class="fas fa-search"></i>
-                                <input type="text" id="search-pending" placeholder="Search barangays...">
-                            </div>
-                        </div>
-                        <div id="pending-table-container">
-                            <div class="loading">
-                                <div class="spinner"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Approved Barangays Table -->
-                    <div class="table-container">
-                        <div class="table-header">
-                            <h3>Approved Users</h3>
+                            <h3>Barangay Information</h3>
                             <div class="search-box">
                                 <i class="fas fa-search"></i>
                                 <input type="text" id="search-approved" placeholder="Search barangays...">
@@ -2296,7 +2278,7 @@
         </div>
     </div>
 
-    <!-- Add User Modal - UPDATED: Removed User Role field -->
+    <!-- Add User Modal -->
     <div class="modal" id="add-user-modal">
         <div class="modal-content">
             <span class="close-modal" id="close-user">&times;</span>
@@ -2345,14 +2327,14 @@
     <script>
         // Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyD-q_sjDr815xyKHnw4qupJoFeCa89rsTg",
-            authDomain: "air-quality-monitoring-s-d6123.firebaseapp.com",
-            databaseURL: "https://air-quality-monitoring-s-d6123-default-rtdb.firebaseio.com",
-            projectId: "air-quality-monitoring-s-d6123",
-            storageBucket: "air-quality-monitoring-s-d6123.firebasestorage.app",
-            messagingSenderId: "410958753987",
-            appId: "1:410958753987:web:546a09493fae6d8623f276",
-            measurementId: "G-MQZTPTJXWP"
+            apiKey: "AIzaSyBszcm3UzRQhlRnaTsoqYzbpJLKjxqBZ_4",
+            authDomain: "air-quality-monitoring-final.firebaseapp.com",
+            databaseURL: "https://air-quality-monitoring-final-default-rtdb.firebaseio.com",
+            projectId: "air-quality-monitoring-final",
+            storageBucket: "air-quality-monitoring-final.firebasestorage.app",
+            messagingSenderId: "607456887459",
+            appId: "1:607456887459:web:2f7cacc2ff77fbcb3d7516",
+            measurementId: "G-XGGF3QL29L"
         };
 
         // Initialize Firebase
@@ -2362,7 +2344,6 @@
 
         // Global variables
         let currentUserRole = '';
-        let approvedBarangays = [];
         let currentPage = 1;
         const itemsPerPage = 10;
         let listenersInitialized = false;
@@ -2396,9 +2377,6 @@
             // Initialize particles
             createParticles();
 
-            // Load approved barangays for the role dropdown
-            loadApprovedBarangays();
-
             // Login form submission
             document.getElementById('login-form').addEventListener('submit', handleLogin);
 
@@ -2418,7 +2396,7 @@
             setupPrintButtons();
         });
 
-        // NEW: Initialize default admin account
+        // Initialize default admin account
         function initializeDefaultAdmin() {
             console.log("Initializing default admin account...");
             
@@ -2440,7 +2418,7 @@
                     createDefaultAdminAccount();
                 } else {
                     console.log("Admin account already exists");
-                // Auto-fill credentials even if admin exists
+                    // Auto-fill credentials even if admin exists
                     setTimeout(() => {
                         autoFillDefaultAdmin();
                     }, 1000);
@@ -2450,7 +2428,7 @@
             });
         }
 
-        // NEW: Create default admin account
+        // Create default admin account
         function createDefaultAdminAccount() {
             // First create the user in Firebase Auth
             auth.createUserWithEmailAndPassword(DEFAULT_ADMIN.email, DEFAULT_ADMIN.password)
@@ -2486,7 +2464,7 @@
                 });
         }
 
-        // NEW: Add existing admin user to database
+        // Add existing admin user to database
         function addExistingAdminToDatabase() {
             const approvedRef = database.ref('approvedUsers');
             approvedRef.once('value').then((snapshot) => {
@@ -2528,7 +2506,7 @@
             });
         }
 
-        // NEW: Auto-fill login form with default admin credentials
+        // Auto-fill login form with default admin credentials
         function autoFillDefaultAdmin() {
             document.getElementById('email').value = DEFAULT_ADMIN.email;
             document.getElementById('password').value = DEFAULT_ADMIN.password;
@@ -2541,7 +2519,7 @@
             message.style.display = 'block';
         }
 
-        // UPDATED: Check login status and redirect if already logged in
+        // Check login status and redirect if already logged in
         function checkLoginStatus() {
             const userRole = localStorage.getItem('userRole');
             const userEmail = localStorage.getItem('userEmail');
@@ -2566,7 +2544,7 @@
             }
         }
 
-        // UPDATED: Handle login with default admin support
+        // Handle login
         function handleLogin(e) {
             e.preventDefault();
             const loginButton = document.getElementById('login-button');
@@ -2584,7 +2562,7 @@
                 return;
             }
 
-            // NEW: Special handling for default admin
+            // Special handling for default admin
             if (email === DEFAULT_ADMIN.email && password === DEFAULT_ADMIN.password && roleValue === 'admin') {
                 console.log("Default admin login attempt");
                 handleDefaultAdminLogin(email, password);
@@ -2592,32 +2570,23 @@
             }
 
             // Determine role and email based on selection
-            let role, loginEmail, barangayName, barangayId;
+            let role, loginEmail, barangayName;
             
-            if (roleValue.startsWith('barangay_')) {
-                // Barangay role selected
-                role = 'barangay';
-                const selectedOption = document.getElementById('role').selectedOptions[0];
-                loginEmail = selectedOption.getAttribute('data-email');
-                barangayName = selectedOption.getAttribute('data-name');
-                barangayId = selectedOption.getAttribute('data-id');
-                
-                // Auto-fill the email field with barangay email
-                document.getElementById('email').value = loginEmail;
-            } else if (roleValue === 'admin') {
+            if (roleValue === 'admin') {
                 // Admin role
                 role = 'admin';
                 loginEmail = email;
             } else {
-                // Regular user roles (casidman, central, etc.)
+                // Barangay roles (casidman, central)
                 role = roleValue;
                 loginEmail = email;
+                barangayName = roleValue.charAt(0).toUpperCase() + roleValue.slice(1);
             }
 
-            checkUserApproval(loginEmail, password, role, barangayName, barangayId);
+            checkUserApproval(loginEmail, password, role, barangayName);
         }
 
-        // NEW: Handle default admin login
+        // Handle default admin login
         function handleDefaultAdminLogin(email, password) {
             auth.signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
@@ -2676,223 +2645,240 @@
                 });
         }
 
-        // Setup notification system
-        function setupNotificationSystem() {
-            // Notification icon click handler
-            document.getElementById('notification-icon').addEventListener('click', function() {
-                const panel = document.getElementById('notification-panel');
-                panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-            });
-
-            // Mark all as read
-            document.getElementById('mark-all-read').addEventListener('click', function() {
-                markAllNotificationsAsRead();
-            });
-
-            // Close notification panel when clicking outside
-            document.addEventListener('click', function(event) {
-                const panel = document.getElementById('notification-panel');
-                const icon = document.getElementById('notification-icon');
-                if (!panel.contains(event.target) && !icon.contains(event.target)) {
-                    panel.style.display = 'none';
-                }
-            });
-
-            // Listen for new user registrations
-            const pendingUsersRef = database.ref('pendingUsers');
-            pendingUsersRef.on('value', function(snapshot) {
-                updateNotificationBadge();
-                loadUserData(); // Reload user data when there are changes
-            });
-
-            // Listen for admin notifications
-            const notificationsRef = database.ref('adminNotifications');
-            notificationsRef.on('value', function(snapshot) {
-                updateNotificationPanel();
-                updateNotificationBadge();
-            });
+        // Check user approval
+        function checkUserApproval(email, password, role, barangayName = '') {
+            console.log("Checking approval for:", email, "Role:", role);
+            
+            if (role === 'admin') {
+                // For admin, check if it's an approved admin user
+                checkAdminApproval(email, password);
+                return;
+            }
+            
+            // For barangay roles, check user approval
+            checkBarangayUserApproval(email, password, role, barangayName);
         }
 
-        // Update notification badge
-        function updateNotificationBadge() {
-            const notificationsRef = database.ref('adminNotifications');
-            const pendingUsersRef = database.ref('pendingUsers');
+        // Check admin approval with default admin support
+        function checkAdminApproval(email, password) {
+            console.log("Checking admin approval for:", email);
             
-            Promise.all([
-                notificationsRef.once('value'),
-                pendingUsersRef.once('value')
-            ]).then(([notificationsSnapshot, pendingUsersSnapshot]) => {
-                const notifications = notificationsSnapshot.val() || {};
-                const pendingUsers = pendingUsersSnapshot.val() || {};
+            const approvedUsersRef = database.ref('approvedUsers');
+            approvedUsersRef.once('value').then((snapshot) => {
+                const approvedUsers = snapshot.val() || {};
+                let isApprovedAdmin = false;
                 
-                let unreadCount = 0;
-                
-                // Count unread notifications
-                Object.values(notifications).forEach(notification => {
-                    if (!notification.read) {
-                        unreadCount++;
+                Object.values(approvedUsers).forEach(user => {
+                    if (user.email === email && user.role === 'admin' && user.status === 'approved') {
+                        isApprovedAdmin = true;
                     }
                 });
                 
-                // Count pending users
-                const pendingUserCount = Object.keys(pendingUsers).length;
-                
-                // Update notification badge
-                const badge = document.getElementById('notification-badge');
-                const userBadge = document.getElementById('user-notification-badge');
-                
-                if (unreadCount + pendingUserCount > 0) {
-                    badge.textContent = unreadCount + pendingUserCount;
-                    badge.style.display = 'flex';
-                    
-                    userBadge.textContent = pendingUserCount;
-                    userBadge.style.display = pendingUserCount > 0 ? 'flex' : 'none';
+                if (isApprovedAdmin) {
+                    performLogin(email, password, 'admin');
                 } else {
-                    badge.style.display = 'none';
-                    userBadge.style.display = 'none';
+                    // For default admin, auto-approve
+                    if (email === DEFAULT_ADMIN.email) {
+                        console.log("Auto-approving default admin");
+                        handleDefaultAdminLogin(email, password);
+                    } else {
+                        showError('Admin account not approved or not found. Please contact system administrator.');
+                        resetLoginButton();
+                    }
                 }
+            }).catch((error) => {
+                console.error("Error checking admin approval:", error);
+                showError('Error checking admin status. Please try again.');
+                resetLoginButton();
             });
         }
 
-        // Update notification panel
-        function updateNotificationPanel() {
-            const notificationsRef = database.ref('adminNotifications');
+        // Check barangay user approval
+        function checkBarangayUserApproval(email, password, role, barangayName) {
+            const approvedUsersRef = database.ref('approvedUsers');
             const pendingUsersRef = database.ref('pendingUsers');
             
             Promise.all([
-                notificationsRef.once('value'),
+                approvedUsersRef.once('value'),
                 pendingUsersRef.once('value')
-            ]).then(([notificationsSnapshot, pendingUsersSnapshot]) => {
-                const notifications = notificationsSnapshot.val() || {};
-                const pendingUsers = pendingUsersSnapshot.val() || {};
+            ]).then(([approvedSnapshot, pendingSnapshot]) => {
+                const approvedUsers = approvedSnapshot.val() || {};
+                const pendingUsers = pendingSnapshot.val() || {};
                 
-                const notificationList = document.getElementById('notification-list');
-                let notificationHTML = '';
-                
-                // Add pending user notifications
-                Object.keys(pendingUsers).forEach(userId => {
-                    const user = pendingUsers[userId];
-                    notificationHTML += `
-                        <div class="notification-item unread" data-id="${userId}" data-type="user">
-                            <div class="notification-title">New User Registration</div>
-                            <div class="notification-message">${user.name} (${user.email}) has requested access as ${user.role}.</div>
-                            <div class="notification-time">${formatTime(user.createdAt)}</div>
-                            <div class="notification-actions">
-                                <button class="notification-btn btn-approve" data-id="${userId}">Approve</button>
-                                <button class="notification-btn btn-reject" data-id="${userId}">Reject</button>
-                            </div>
-                        </div>
-                    `;
+                // Check if user is approved
+                let isApproved = false;
+                Object.values(approvedUsers).forEach(user => {
+                    if (user.email === email && user.status === 'approved') {
+                        isApproved = true;
+                    }
                 });
                 
-                // Add other notifications
-                Object.keys(notifications).forEach(notificationId => {
-                    const notification = notifications[notificationId];
-                    const unreadClass = notification.read ? '' : 'unread';
-                    
-                    notificationHTML += `
-                        <div class="notification-item ${unreadClass}" data-id="${notificationId}" data-type="notification">
-                            <div class="notification-title">${notification.title}</div>
-                            <div class="notification-message">${notification.message}</div>
-                            <div class="notification-time">${formatTime(notification.timestamp)}</div>
-                        </div>
-                    `;
-                });
-                
-                if (notificationHTML === '') {
-                    notificationHTML = `
-                        <div class="notification-empty">
-                            <i class="fas fa-bell-slash"></i>
-                            <p>No notifications</p>
-                        </div>
-                    `;
-                }
-                
-                notificationList.innerHTML = notificationHTML;
-                
-                // Add event listeners for notification actions
-                document.querySelectorAll('.notification-btn.btn-approve').forEach(button => {
-                    button.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        const userId = this.getAttribute('data-id');
-                        approveUser(userId);
-                    });
-                });
-                
-                document.querySelectorAll('.notification-btn.btn-reject').forEach(button => {
-                    button.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        const userId = this.getAttribute('data-id');
-                        rejectUser(userId);
-                    });
-                });
-                
-                // Add click handlers for notifications
-                document.querySelectorAll('.notification-item').forEach(item => {
-                    item.addEventListener('click', function() {
-                        const notificationId = this.getAttribute('data-id');
-                        const type = this.getAttribute('data-type');
-                        
-                        if (type === 'notification') {
-                            markNotificationAsRead(notificationId);
+                if (isApproved) {
+                    performLogin(email, password, role, barangayName);
+                } else {
+                    // Check if user is pending
+                    let isPending = false;
+                    Object.values(pendingUsers).forEach(user => {
+                        if (user.email === email) {
+                            isPending = true;
                         }
                     });
-                });
+                    
+                    if (isPending) {
+                        showError('Your account is pending admin approval. Please wait for approval email.');
+                    } else {
+                        showError('Account not found. Please register first.');
+                    }
+                    resetLoginButton();
+                }
+            }).catch((error) => {
+                console.error("Error checking user approval:", error);
+                showError('Error checking account status. Please try again.');
+                resetLoginButton();
             });
         }
 
-        // Format time for notifications
-        function formatTime(timestamp) {
-            if (!timestamp) return 'Unknown time';
-            
-            const date = new Date(timestamp);
-            const now = new Date();
-            const diffMs = now - date;
-            const diffMins = Math.floor(diffMs / 60000);
-            const diffHours = Math.floor(diffMins / 60);
-            const diffDays = Math.floor(diffHours / 24);
-            
-            if (diffMins < 1) return 'Just now';
-            if (diffMins < 60) return `${diffMins} min ago`;
-            if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-            if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-            
-            return date.toLocaleDateString();
-        }
-
-        // Mark notification as read
-        function markNotificationAsRead(notificationId) {
-            const notificationRef = database.ref('adminNotifications/' + notificationId);
-            notificationRef.update({ read: true })
-                .then(() => {
-                    updateNotificationPanel();
-                    updateNotificationBadge();
+        // Perform login
+        function performLogin(email, password, role, barangayName = '') {
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    localStorage.setItem('userRole', role);
+                    localStorage.setItem('userEmail', email);
+                    if (barangayName) {
+                        localStorage.setItem('barangayName', barangayName);
+                    }
+                    
+                    showSuccess();
+                    
+                    setTimeout(() => {
+                        if (role === 'admin') {
+                            showAdminDashboard();
+                        } else {
+                            // For barangay roles
+                            showBarangayDashboard(barangayName);
+                        }
+                    }, 2000);
                 })
-                .catch(error => {
-                    console.error('Error marking notification as read:', error);
+                .catch((error) => {
+                    let errorMsg = 'Invalid email or password.';
+                    if (error.code === 'auth/invalid-email') {
+                        errorMsg = 'Invalid email address format.';
+                    } else if (error.code === 'auth/user-not-found') {
+                        errorMsg = 'No account found with this email.';
+                    } else if (error.code === 'auth/wrong-password') {
+                        errorMsg = 'Incorrect password.';
+                    } else if (error.code === 'auth/user-disabled') {
+                        errorMsg = 'This account has been disabled.';
+                    }
+                    showError(errorMsg);
+                    resetLoginButton();
                 });
         }
 
-        // Mark all notifications as read
-        function markAllNotificationsAsRead() {
-            const notificationsRef = database.ref('adminNotifications');
-            notificationsRef.once('value').then(snapshot => {
-                const notifications = snapshot.val() || {};
-                const updates = {};
+        // Show barangay dashboard
+        function showBarangayDashboard(barangayName) {
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('barangay-dashboard').style.display = 'flex';
+            
+            // Update dashboard title and user info
+            document.getElementById('barangay-dashboard-title').textContent = `Barangay Overview - ${barangayName}`;
+            document.getElementById('barangay-user-name').textContent = barangayName;
+            
+            // Initialize barangay charts after a short delay
+            setTimeout(() => {
+                initializeBarangayCharts();
+            }, 500);
+            
+            // Update real-time data
+            updateBarangayRealTimeData(barangayName);
+            
+            // Setup approval monitoring for active session
+            setupApprovalMonitoring();
+        }
+
+        // Update barangay real-time data
+        function updateBarangayRealTimeData(barangayName) {
+            // Simulate real-time data updates
+            const aqiValues = [42, 45, 48, 44, 46, 49, 47];
+            const dustValues = [114.89576, 115.23456, 116.78901, 113.45678, 117.12345, 118.56789, 115.98765];
+            
+            let index = 0;
+            setInterval(() => {
+                const aqi = aqiValues[index];
+                const dust = dustValues[index];
                 
-                Object.keys(notifications).forEach(notificationId => {
-                    updates[`adminNotifications/${notificationId}/read`] = true;
-                });
+                document.getElementById('progressValue').textContent = aqi;
+                document.getElementById('dustLevelValue').textContent = `${dust.toFixed(5)}`;
                 
-                database.ref().update(updates)
-                    .then(() => {
-                        updateNotificationPanel();
-                        updateNotificationBadge();
-                    })
-                    .catch(error => {
-                        console.error('Error marking all notifications as read:', error);
-                    });
-            });
+                // Update AQI status
+                updateAQIStatus(aqi);
+                
+                // Update circular progress bar
+                updateCircularProgress(aqi);
+                
+                // Update AQI scale marker
+                updateAQIScaleMarker(aqi);
+                
+                // Update min/max AQI
+                document.getElementById('minAQI').textContent = Math.min(...aqiValues);
+                document.getElementById('maxAQI').textContent = Math.max(...aqiValues);
+                
+                index = (index + 1) % aqiValues.length;
+            }, 5000);
+        }
+
+        // Update AQI status
+        function updateAQIStatus(aqi) {
+            const aqiStatus = document.getElementById('aqiStatus');
+            
+            let status = 'Good';
+            let statusClass = 'status-good';
+            let icon = 'fas fa-smile';
+            
+            if (aqi > 50 && aqi <= 100) {
+                status = 'Moderate';
+                statusClass = 'status-moderate';
+                icon = 'fas fa-meh';
+            } else if (aqi > 100) {
+                status = 'Polluted';
+                statusClass = 'status-polluted';
+                icon = 'fas fa-frown';
+            }
+            
+            aqiStatus.innerHTML = `<i class="${icon}"></i><span>${status}</span>`;
+            aqiStatus.className = `aqi-status ${statusClass}`;
+        }
+
+        // Update circular progress
+        function updateCircularProgress(aqi) {
+            const progressCircle = document.getElementById('progressCircle');
+            const maxAQI = 300; // Maximum AQI value for visualization
+            
+            // Calculate percentage (capped at 100%)
+            const percentage = Math.min(aqi / maxAQI * 100, 100);
+            
+            // Create conic gradient based on AQI value
+            let gradient;
+            if (aqi <= 50) {
+                gradient = `conic-gradient(#2dce89 0%, #2dce89 ${percentage}%, rgba(255, 255, 255, 0.2) ${percentage}%)`;
+            } else if (aqi <= 100) {
+                gradient = `conic-gradient(#FF8C00 0%, #FF8C00 ${percentage}%, rgba(255, 255, 255, 0.2) ${percentage}%)`;
+            } else {
+                gradient = `conic-gradient(#f5365c 0%, #f5365c ${percentage}%, rgba(255, 255, 255, 0.2) ${percentage}%)`;
+            }
+            
+            progressCircle.style.background = gradient;
+        }
+
+        // Update AQI scale marker
+        function updateAQIScaleMarker(aqi) {
+            const aqiMarker = document.getElementById('aqiMarker');
+            const maxAQI = 300; // Maximum AQI value for visualization
+            
+            // Calculate position (capped at 100%)
+            const position = Math.min(aqi / maxAQI * 100, 100);
+            
+            aqiMarker.style.left = `${position}%`;
         }
 
         // Setup modals
@@ -2924,7 +2910,7 @@
             });
         }
 
-        // UPDATED: Register user function - removed role selection
+        // Register user function
         function registerUser() {
             const name = document.getElementById('user-name').value.trim();
             const email = document.getElementById('user-email').value.trim();
@@ -3079,10 +3065,10 @@
                 displayPendingUsersTable(pendingUsers);
                 displayApprovedUsersTable(approvedUsers);
                 
-                // CHANGED: Update user accounts count
+                // Update user accounts count
                 document.getElementById('user-accounts').textContent = Object.keys(approvedUsers).length;
                 
-                // UPDATED: Update user approved count (not barangay count)
+                // Update user approved count
                 document.getElementById('user-approved').textContent = Object.keys(approvedUsers).length;
             }).catch(error => {
                 console.error("Error loading user data:", error);
@@ -3270,8 +3256,6 @@
                 .then(() => {
                     alert('User approved successfully!');
                     loadUserData();
-                    updateNotificationPanel();
-                    updateNotificationBadge();
                 })
                 .catch((error) => {
                     console.error('Error approving user:', error);
@@ -3289,8 +3273,6 @@
                     .then(() => {
                         alert('User rejected successfully!');
                         loadUserData();
-                        updateNotificationPanel();
-                        updateNotificationBadge();
                     })
                     .catch((error) => {
                         console.error('Error rejecting user:', error);
@@ -3356,109 +3338,10 @@
             document.getElementById('barangay-modal').classList.add('active');
         }
 
-        // Complete user approval checking system
-        function checkUserApproval(email, password, role, barangayName = '', barangayId = '') {
-            console.log("Checking approval for:", email, "Role:", role);
-            
-            if (role === 'admin') {
-                // For admin, check if it's an approved admin user
-                checkAdminApproval(email, password);
-                return;
-            }
-            
-            if (role === 'barangay') {
-                checkBarangayApproval(email, password, barangayName, barangayId);
-                return;
-            }
-            
-            // For other user roles (casidman, central, etc.), check user approval
-            checkRegularUserApproval(email, password, role);
-        }
-
-        // UPDATED: Check admin approval with default admin support
-        function checkAdminApproval(email, password) {
-            console.log("Checking admin approval for:", email);
-            
-            const approvedUsersRef = database.ref('approvedUsers');
-            approvedUsersRef.once('value').then((snapshot) => {
-                const approvedUsers = snapshot.val() || {};
-                let isApprovedAdmin = false;
-                
-                Object.values(approvedUsers).forEach(user => {
-                    if (user.email === email && user.role === 'admin' && user.status === 'approved') {
-                        isApprovedAdmin = true;
-                    }
-                });
-                
-                if (isApprovedAdmin) {
-                    performLogin(email, password, 'admin');
-                } else {
-                    // For default admin, auto-approve
-                    if (email === DEFAULT_ADMIN.email) {
-                        console.log("Auto-approving default admin");
-                        handleDefaultAdminLogin(email, password);
-                    } else {
-                        showError('Admin account not approved or not found. Please contact system administrator.');
-                        resetLoginButton();
-                    }
-                }
-            }).catch((error) => {
-                console.error("Error checking admin approval:", error);
-                showError('Error checking admin status. Please try again.');
-                resetLoginButton();
-            });
-        }
-
-        // Check regular user approval
-        function checkRegularUserApproval(email, password, role) {
-            const approvedUsersRef = database.ref('approvedUsers');
-            const pendingUsersRef = database.ref('pendingUsers');
-            
-            Promise.all([
-                approvedUsersRef.once('value'),
-                pendingUsersRef.once('value')
-            ]).then(([approvedSnapshot, pendingSnapshot]) => {
-                const approvedUsers = approvedSnapshot.val() || {};
-                const pendingUsers = pendingSnapshot.val() || {};
-                
-                // Check if user is approved
-                let isApproved = false;
-                Object.values(approvedUsers).forEach(user => {
-                    if (user.email === email && user.status === 'approved') {
-                        isApproved = true;
-                    }
-                });
-                
-                if (isApproved) {
-                    performLogin(email, password, role);
-                } else {
-                    // Check if user is pending
-                    let isPending = false;
-                    Object.values(pendingUsers).forEach(user => {
-                        if (user.email === email) {
-                            isPending = true;
-                        }
-                    });
-                    
-                    if (isPending) {
-                        showError('Your account is pending admin approval. Please wait for approval email.');
-                    } else {
-                        showError('Account not found. Please register first.');
-                    }
-                    resetLoginButton();
-                }
-            }).catch((error) => {
-                console.error("Error checking user approval:", error);
-                showError('Error checking account status. Please try again.');
-                resetLoginButton();
-            });
-        }
-
         // Setup approval monitoring for active sessions
         function setupApprovalMonitoring() {
             // Listen for changes to user approval status
             const approvedUsersRef = database.ref('approvedUsers');
-            const approvedBarangaysRef = database.ref('approvedBarangays');
             
             approvedUsersRef.on('value', function(snapshot) {
                 const currentUserEmail = localStorage.getItem('userEmail');
@@ -3480,43 +3363,243 @@
                     showLoginPage();
                 }
             });
+        }
+
+        // Function to fetch all barangays from Firebase (only Casidman and Central)
+        function fetchAllBarangays() {
+            const container = document.getElementById('all-barangays-table-container');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+            // Use default barangays (Casidman and Central)
+            const defaultBarangays = [
+                {
+                    id: 'casidman-default',
+                    name: 'Casidman',
+                    city: 'Arteche',
+                    email: 'casidman@barangay.com',
+                    status: 'approved',
+                    date: new Date().toLocaleDateString(),
+                    type: 'approved'
+                },
+                {
+                    id: 'central-default',
+                    name: 'Central',
+                    city: 'Arteche',
+                    email: 'central@barangay.com',
+                    status: 'approved',
+                    date: new Date().toLocaleDateString(),
+                    type: 'approved'
+                }
+            ];
             
-            approvedBarangaysRef.on('value', function(snapshot) {
-                const currentUserEmail = localStorage.getItem('userEmail');
-                const userRole = localStorage.getItem('userRole');
-                
-                if (!currentUserEmail || userRole !== 'barangay') return;
-                
-                const approvedBarangays = snapshot.val() || {};
-                let isStillApproved = false;
-                
-                Object.values(approvedBarangays).forEach(barangay => {
-                    if (barangay.gmail === currentUserEmail && barangay.status === 'approved') {
-                        isStillApproved = true;
-                    }
+            // Update the total barangays count
+            updateTotalBarangaysCount(defaultBarangays.length);
+            
+            // Display the barangays table
+            displayAllBarangaysTable(defaultBarangays);
+        }
+
+        // Function to update the total barangays count
+        function updateTotalBarangaysCount(count) {
+            document.getElementById('total-barangays').textContent = count;
+            document.getElementById('pending-barangays').textContent = count; // Active barangays count
+        }
+
+        // Function to display all barangays in a table (simplified - no approval actions)
+        function displayAllBarangaysTable(barangays) {
+            const container = document.getElementById('all-barangays-table-container');
+            
+            if (barangays.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h3>No Barangays Found</h3>
+                        <p>There are no barangays registered in the system.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Barangay Name</th>
+                            <th>Municipality</th>
+                            <th>Admin Email</th>
+                            <th>Status</th>
+                            <th>Date Added</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            barangays.forEach(barangay => {
+                tableHTML += `
+                    <tr data-id="${barangay.id}">
+                        <td>${barangay.name}</td>
+                        <td>${barangay.city}</td>
+                        <td>${barangay.email}</td>
+                        <td><span class="status status-approved">Active</span></td>
+                        <td>${barangay.date}</td>
+                        <td class="action-buttons">
+                            <button class="btn btn-view" data-id="${barangay.id}">View Details</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = tableHTML;
+            
+            // Add event listeners for the view buttons only
+            document.querySelectorAll('#all-barangays-table-container .btn-view').forEach(button => {
+                button.addEventListener('click', function() {
+                    const barangayId = this.getAttribute('data-id');
+                    viewBarangayDetails(barangayId, 'approvedBarangays');
                 });
+            });
+        }
+
+        // Simplified viewBarangayDetails function
+        function viewBarangayDetails(barangayId, location) {
+            // For default barangays, show static details
+            if (barangayId.includes('default')) {
+                showBarangayModal({
+                    name: barangayId.includes('casidman') ? 'Casidman' : 'Central',
+                    city: 'Arteche',
+                    gmail: barangayId.includes('casidman') ? 'casidman@barangay.com' : 'central@barangay.com',
+                    status: 'approved',
+                    approvedAt: new Date().toISOString()
+                }, 'approved');
+                return;
+            }
+
+            // For Firebase barangays, fetch details
+            const ref = database.ref(location + '/' + barangayId);
+            
+            ref.once('value').then((snapshot) => {
+                const barangay = snapshot.val();
                 
-                if (!isStillApproved) {
-                    // Barangay was deactivated, force logout
-                    alert('Your barangay account has been deactivated by an administrator.');
-                    localStorage.clear();
-                    showLoginPage();
+                if (barangay) {
+                    showBarangayModal(barangay, 'approved');
+                } else {
+                    alert('Barangay data not found.');
                 }
             });
         }
 
-        function setupPrintButtons() {
-            // Admin print button
-            document.getElementById('print-history-btn').addEventListener('click', function() {
-                window.print();
+        // Show barangay modal
+        function showBarangayModal(barangay, status) {
+            const dateField = status === 'approved' ? 'approvedAt' : 'createdAt';
+            const date = barangay[dateField] ? new Date(barangay[dateField]).toLocaleDateString() : 'Unknown date';
+            
+            document.getElementById('barangay-details').innerHTML = `
+                <div style="padding: 20px;">
+                    <h3 style="margin-bottom: 15px; color: var(--primary);">Barangay Information</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                        <div>
+                            <p><strong>Barangay Name:</strong> ${barangay.name || barangay.barangayName || 'Unknown'}</p>
+                            <p><strong>Municipality:</strong> ${barangay.city || barangay.municipality || 'Unknown'}</p>
+                            <p><strong>Admin Email:</strong> ${barangay.gmail || barangay.email || 'No email'}</p>
+                        </div>
+                        <div>
+                            <p><strong>Date ${status === 'approved' ? 'Approved' : 'Registered'}:</strong> ${date}</p>
+                            <p><strong>Status:</strong> <span class="status status-${status}">${status === 'approved' ? 'Approved' : 'Pending'}</span></p>
+                            ${barangay.adminName ? `<p><strong>Admin Name:</strong> ${barangay.adminName}</p>` : ''}
+                            ${barangay.adminPhone ? `<p><strong>Contact Number:</strong> ${barangay.adminPhone}</p>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('barangay-modal').classList.add('active');
+        }
+
+        // Simplified function to load barangay data for overview stats only
+        function loadBarangayData() {
+            console.log("Loading barangay data for stats...");
+            
+            // Update stats - set to 2 for Casidman and Central
+            document.getElementById('pending-barangays').textContent = 2;
+            document.getElementById('total-barangays').textContent = 2;
+            
+            // Show barangay information table
+            const defaultBarangays = [
+                {
+                    id: 'casidman-default',
+                    name: 'Casidman',
+                    city: 'Arteche',
+                    email: 'casidman@barangay.com',
+                    status: 'approved',
+                    date: new Date().toLocaleDateString()
+                },
+                {
+                    id: 'central-default',
+                    name: 'Central',
+                    city: 'Arteche',
+                    email: 'central@barangay.com',
+                    status: 'approved',
+                    date: new Date().toLocaleDateString()
+                }
+            ];
+            
+            displayBarangayInfoTable(defaultBarangays);
+        }
+
+        // Display barangay information table in overview
+        function displayBarangayInfoTable(barangays) {
+            const container = document.getElementById('approved-table-container');
+            
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Barangay Name</th>
+                            <th>Municipality</th>
+                            <th>Admin Email</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            barangays.forEach(barangay => {
+                tableHTML += `
+                    <tr data-id="${barangay.id}">
+                        <td>${barangay.name}</td>
+                        <td>${barangay.city}</td>
+                        <td>${barangay.email}</td>
+                        <td><span class="status status-approved">Active</span></td>
+                        <td class="action-buttons">
+                            <button class="btn btn-view" data-id="${barangay.id}">View Details</button>
+                        </td>
+                    </tr>
+                `;
             });
 
-            // Barangay print button
-            document.getElementById('print-barangay-history-btn').addEventListener('click', function() {
-                window.print();
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = tableHTML;
+            
+            // Add event listeners for the view buttons
+            document.querySelectorAll('#approved-table-container .btn-view').forEach(button => {
+                button.addEventListener('click', function() {
+                    const barangayId = this.getAttribute('data-id');
+                    viewBarangayDetails(barangayId, 'approvedBarangays');
+                });
             });
         }
 
+        // Setup navigation
         function setupNavigation() {
             // Admin navigation
             document.querySelectorAll('#admin-dashboard .menu-item').forEach(item => {
@@ -3551,6 +3634,7 @@
                             if (section === 'overview') {
                                 setTimeout(() => {
                                     initializeAdminCharts();
+                                    loadBarangayData(); // Load barangay data for overview
                                 }, 100);
                             }
                         }
@@ -3559,7 +3643,7 @@
                         if (section === 'history') {
                             loadHistoryData();
                         } else if (section === 'barangays') {
-                            loadAllBarangays();
+                            fetchAllBarangays(); // Show only Casidman and Central
                         } else if (section === 'users') {
                             loadUserData();
                         }
@@ -3655,286 +3739,6 @@
             }
         }
 
-        function loadApprovedBarangays() {
-            const approvedRef = database.ref('approvedBarangays');
-            approvedRef.once('value').then((snapshot) => {
-                const approvedData = snapshot.val();
-                approvedBarangays = [];
-                
-                if (approvedData) {
-                    Object.keys(approvedData).forEach(key => {
-                        const barangay = approvedData[key];
-                        if (barangay.status === 'approved') {
-                            approvedBarangays.push({
-                                name: barangay.name || barangay.barangayName,
-                                gmail: barangay.gmail,
-                                city: barangay.city || barangay.municipality,
-                                id: key
-                            });
-                        }
-                    });
-                }
-                
-                // Populate barangay options in role dropdown
-                populateBarangayRoleOptions();
-            }).catch((error) => {
-                console.error("Error loading approved barangays:", error);
-            });
-        }
-
-        function populateBarangayRoleOptions() {
-            const roleSelect = document.getElementById('role');
-            
-            // Remove existing barangay options
-            const existingBarangayOptions = roleSelect.querySelectorAll('.barangay-option');
-            existingBarangayOptions.forEach(option => option.remove());
-            
-            // Add approved barangays to the role dropdown
-            if (approvedBarangays.length > 0) {
-                // Add each barangay as an option
-                approvedBarangays.forEach(barangay => {
-                    const option = document.createElement('option');
-                    option.value = `barangay_${barangay.id}`;
-                    option.textContent = `${barangay.name} (${barangay.city})`;
-                    option.setAttribute('data-email', barangay.gmail);
-                    option.setAttribute('data-name', barangay.name);
-                    option.setAttribute('data-id', barangay.id);
-                    option.className = 'barangay-option';
-                    
-                    // Insert barangay options after admin option
-                    const adminOption = roleSelect.querySelector('option[value="admin"]');
-                    roleSelect.insertBefore(option, adminOption.nextSibling);
-                });
-            }
-        }
-
-        function checkBarangayApproval(email, password, barangayName, barangayId) {
-            const approvedRef = database.ref('approvedBarangays');
-            approvedRef.once('value').then((snapshot) => {
-                const approvedData = snapshot.val();
-                let isApproved = false;
-                
-                if (approvedData) {
-                    Object.values(approvedData).forEach(barangay => {
-                        if (barangay.gmail === email && barangay.status === 'approved') {
-                            isApproved = true;
-                            barangayName = barangay.name || barangay.barangayName;
-                            barangayId = barangay.id;
-                            console.log("Barangay is approved:", barangayName);
-                        }
-                    });
-                }
-                
-                if (isApproved) {
-                    performLogin(email, password, 'barangay', barangayName, barangayId);
-                } else {
-                    const pendingRef = database.ref('pendingBarangays');
-                    pendingRef.once('value').then((snapshot) => {
-                        const pendingData = snapshot.val();
-                        let isPending = false;
-                        let isRejected = false;
-                        
-                        if (pendingData) {
-                            Object.values(pendingData).forEach(barangay => {
-                                if (barangay.gmail === email) {
-                                    if (barangay.status === 'pending') {
-                                        isPending = true;
-                                    } else if (barangay.status === 'rejected') {
-                                        isRejected = true;
-                                    }
-                                }
-                            });
-                        }
-                        
-                        if (isPending) {
-                            showError('Your barangay account is pending admin approval. Please wait for approval email.');
-                            resetLoginButton();
-                        } else if (isRejected) {
-                            showError('Your barangay account has been rejected. Please contact support.');
-                            resetLoginButton();
-                        } else {
-                            showError('Barangay account not found. Please register first.');
-                            resetLoginButton();
-                        }
-                    });
-                }
-            }).catch((error) => {
-                console.error("Error checking approval:", error);
-                showError('Error checking account status. Please try again.');
-                resetLoginButton();
-            });
-        }
-
-        function performLogin(email, password, role, barangayName = '', barangayId = '') {
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    localStorage.setItem('userRole', role);
-                    localStorage.setItem('userEmail', email);
-                    if (barangayName) {
-                        localStorage.setItem('barangayName', barangayName);
-                    }
-                    if (barangayId) {
-                        localStorage.setItem('barangayId', barangayId);
-                    }
-                    
-                    showSuccess();
-                    
-                    setTimeout(() => {
-                        if (role === 'admin') {
-                            showAdminDashboard();
-                        } else if (role === 'barangay') {
-                            // Redirect to barangay-specific page
-                            redirectToBarangayPage(barangayName);
-                        } else {
-                            // For specific barangays like casidman, central
-                            redirectToBarangayPage(role);
-                        }
-                    }, 2000);
-                })
-                .catch((error) => {
-                    let errorMsg = 'Invalid email or password.';
-                    if (error.code === 'auth/invalid-email') {
-                        errorMsg = 'Invalid email address format.';
-                    } else if (error.code === 'auth/user-not-found') {
-                        errorMsg = 'No account found with this email.';
-                    } else if (error.code === 'auth/wrong-password') {
-                        errorMsg = 'Incorrect password.';
-                    } else if (error.code === 'auth/user-disabled') {
-                        errorMsg = 'This account has been disabled.';
-                    }
-                    showError(errorMsg);
-                    resetLoginButton();
-                });
-        }
-
-        function redirectToBarangayPage(barangayName) {
-            // Convert barangay name to lowercase for the filename
-            const pageName = barangayName.toLowerCase() + '.html';
-            
-            // Check if the page exists, if not, show the barangay dashboard
-            fetch(pageName)
-                .then(response => {
-                    if (response.ok) {
-                        // Redirect to the barangay-specific page
-                        window.location.href = pageName;
-                    } else {
-                        // Fallback to the barangay dashboard
-                        showBarangayDashboard(barangayName);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error checking page:', error);
-                    // Fallback to the barangay dashboard
-                    showBarangayDashboard(barangayName);
-                });
-        }
-
-        function redirectToUserDashboard(userRole) {
-            // For regular users, show a simple dashboard
-            showBarangayDashboard(userRole);
-        }
-
-        function showBarangayDashboard(barangayName) {
-            document.getElementById('login-page').style.display = 'none';
-            document.getElementById('barangay-dashboard').style.display = 'flex';
-            
-            // Update dashboard title and user info
-            document.getElementById('barangay-dashboard-title').textContent = `Barangay Overview - ${barangayName}`;
-            document.getElementById('barangay-user-name').textContent = barangayName;
-            
-            // Initialize barangay charts after a short delay
-            setTimeout(() => {
-                initializeBarangayCharts();
-            }, 500);
-            
-            // Update real-time data
-            updateBarangayRealTimeData(barangayName);
-            
-            // Setup approval monitoring for active session
-            setupApprovalMonitoring();
-        }
-
-        function updateBarangayRealTimeData(barangayName) {
-            // Simulate real-time data updates
-            const aqiValues = [42, 45, 48, 44, 46, 49, 47];
-            const dustValues = [114.89576, 115.23456, 116.78901, 113.45678, 117.12345, 118.56789, 115.98765];
-            
-            let index = 0;
-            setInterval(() => {
-                const aqi = aqiValues[index];
-                const dust = dustValues[index];
-                
-                document.getElementById('progressValue').textContent = aqi;
-                document.getElementById('dustLevelValue').textContent = `${dust.toFixed(5)}`;
-                
-                // Update AQI status
-                updateAQIStatus(aqi);
-                
-                // Update circular progress bar
-                updateCircularProgress(aqi);
-                
-                // Update AQI scale marker
-                updateAQIScaleMarker(aqi);
-                
-                // Update min/max AQI
-                document.getElementById('minAQI').textContent = Math.min(...aqiValues);
-                document.getElementById('maxAQI').textContent = Math.max(...aqiValues);
-                
-                index = (index + 1) % aqiValues.length;
-            }, 5000);
-        }
-
-        function updateAQIStatus(aqi) {
-            const aqiStatus = document.getElementById('aqiStatus');
-            
-            let status = 'Good';
-            let statusClass = 'status-good';
-            let icon = 'fas fa-smile';
-            
-            if (aqi > 50 && aqi <= 100) {
-                status = 'Moderate';
-                statusClass = 'status-moderate';
-                icon = 'fas fa-meh';
-            } else if (aqi > 100) {
-                status = 'Polluted';
-                statusClass = 'status-polluted';
-                icon = 'fas fa-frown';
-            }
-            
-            aqiStatus.innerHTML = `<i class="${icon}"></i><span>${status}</span>`;
-            aqiStatus.className = `aqi-status ${statusClass}`;
-        }
-
-        function updateCircularProgress(aqi) {
-            const progressCircle = document.getElementById('progressCircle');
-            const maxAQI = 300; // Maximum AQI value for visualization
-            
-            // Calculate percentage (capped at 100%)
-            const percentage = Math.min(aqi / maxAQI * 100, 100);
-            
-            // Create conic gradient based on AQI value
-            let gradient;
-            if (aqi <= 50) {
-                gradient = `conic-gradient(#2dce89 0%, #2dce89 ${percentage}%, rgba(255, 255, 255, 0.2) ${percentage}%)`;
-            } else if (aqi <= 100) {
-                gradient = `conic-gradient(#FF8C00 0%, #FF8C00 ${percentage}%, rgba(255, 255, 255, 0.2) ${percentage}%)`;
-            } else {
-                gradient = `conic-gradient(#f5365c 0%, #f5365c ${percentage}%, rgba(255, 255, 255, 0.2) ${percentage}%)`;
-            }
-            
-            progressCircle.style.background = gradient;
-        }
-
-        function updateAQIScaleMarker(aqi) {
-            const aqiMarker = document.getElementById('aqiMarker');
-            const maxAQI = 300; // Maximum AQI value for visualization
-            
-            // Calculate position (capped at 100%)
-            const position = Math.min(aqi / maxAQI * 100, 100);
-            
-            aqiMarker.style.left = `${position}%`;
-        }
-
         function setupDashboard() {
             // Only set up listeners once
             if (listenersInitialized) return;
@@ -3970,10 +3774,6 @@
             loadBarangayData();
 
             // Search functionality
-            document.getElementById('search-pending').addEventListener('input', function() {
-                filterTable('pending-table-container', this.value);
-            });
-            
             document.getElementById('search-approved').addEventListener('input', function() {
                 filterTable('approved-table-container', this.value);
             });
@@ -3990,12 +3790,6 @@
             // Time period selector
             document.getElementById('time-period').addEventListener('change', function() {
                 alert(`Loading data for: ${this.options[this.selectedIndex].text}`);
-            });
-
-            // SINGLE real-time listener - only listen to pendingBarangays to avoid duplicates
-            const barangayDataRef = database.ref('pendingBarangays');
-            barangayDataRef.on('value', function(snapshot) {
-                loadBarangayData();
             });
         }
 
@@ -4199,320 +3993,10 @@
                 initializeAdminCharts();
             }, 500);
             
-            // Setup notification system for admin
-            setupNotificationSystem();
             loadUserData();
             
             // Setup approval monitoring for active session
             setupApprovalMonitoring();
-        }
-
-        // UPDATED: Load barangay data - fixed to not count user approvals in barangay totals
-        function loadBarangayData() {
-            console.log("Loading barangay data..."); // Debug log
-            
-            database.ref().once('value').then(snapshot => {
-                const allData = snapshot.val();
-                
-                let pendingCount = 0;
-                let approvedCount = 0;
-                let pendingTableHTML = '';
-                let approvedTableHTML = '';
-                
-                if (allData) {
-                    // Track processed barangays to avoid duplicates
-                    const processedBarangays = new Set();
-                    
-                    // Only count barangays from barangay collections, not user collections
-                    Object.keys(allData).forEach(location => {
-                        // Skip user collections
-                        if (location.includes('User') || location === 'adminNotifications') {
-                            return;
-                        }
-                        
-                        const node = allData[location];
-                        if (node && typeof node === 'object') {
-                            Object.keys(node).forEach(key => {
-                                const barangay = node[key];
-                                // Create a unique identifier for this barangay
-                                const barangayId = `${location}_${key}`;
-                                
-                                // Skip if we've already processed this barangay
-                                if (processedBarangays.has(barangayId)) {
-                                    return;
-                                }
-                                processedBarangays.add(barangayId);
-                                
-                                if (barangay && (barangay.name || barangay.barangayName || barangay.gmail)) {
-                                    const isPending = !barangay.status || barangay.status === 'pending';
-                                    const isApproved = barangay.status === 'approved';
-                                    
-                                    if (isPending) {
-                                        pendingCount++;
-                                        const date = barangay.createdAt ? new Date(barangay.createdAt).toLocaleDateString() : 'Unknown date';
-                                        pendingTableHTML += `
-                                            <tr data-id="${key}" data-location="${location}">
-                                                <td>${barangay.name || barangay.barangayName || 'Unknown'}</td>
-                                                <td>${barangay.city || barangay.municipality || 'Unknown'}</td>
-                                                <td>${barangay.gmail || barangay.email || 'No email'}</td>
-                                                <td>${date}</td>
-                                                <td><span class="status status-pending">Pending</span></td>
-                                                <td class="action-buttons">
-                                                    <button class="btn btn-approve" data-id="${key}" data-location="${location}">Approve</button>
-                                                    <button class="btn btn-reject" data-id="${key}" data-location="${location}">Reject</button>
-                                                    <button class="btn btn-view" data-id="${key}" data-location="${location}">View</button>
-                                                </td>
-                                            </tr>
-                                        `;
-                                    } else if (isApproved) {
-                                        approvedCount++;
-                                        const date = barangay.approvedAt ? new Date(barangay.approvedAt).toLocaleDateString() : 
-                                                    (barangay.createdAt ? new Date(barangay.createdAt).toLocaleDateString() : 'Unknown date');
-                                        approvedTableHTML += `
-                                            <tr data-id="${key}" data-location="${location}">
-                                                <td>${barangay.name || barangay.barangayName || 'Unknown'}</td>
-                                                <td>${barangay.city || barangay.municipality || 'Unknown'}</td>
-                                                <td>${barangay.gmail || barangay.email || 'No email'}</td>
-                                                <td>${date}</td>
-                                                <td><span class="status status-approved">Active</span></td>
-                                                <td class="action-buttons">
-                                                    <button class="btn btn-view" data-id="${key}" data-location="${location}">View Details</button>
-                                                    <button class="btn btn-reject" data-id="${key}" data-location="${location}">Deactivate</button>
-                                                </td>
-                                            </tr>
-                                        `;
-                                    }
-                                }
-                            });
-                        }
-                    });
-                }
-                
-                console.log(`Found ${pendingCount} pending, ${approvedCount} approved barangays`); // Debug log
-                
-                // Update pending table
-                if (pendingTableHTML) {
-                    document.getElementById('pending-table-container').innerHTML = `
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Barangay Name</th>
-                                    <th>Municipality</th>
-                                    <th>Admin Email</th>
-                                    <th>Date Registered</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${pendingTableHTML}
-                            </tbody>
-                        </table>
-                    `;
-                } else {
-                    document.getElementById('pending-table-container').innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-inbox"></i>
-                            <h3>No Pending Barangays</h3>
-                            <p>There are no barangay registration requests pending approval.</p>
-                        </div>
-                    `;
-                }
-                
-                // Update approved table
-                if (approvedTableHTML) {
-                    document.getElementById('approved-table-container').innerHTML = `
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Barangay Name</th>
-                                    <th>Municipality</th>
-                                    <th>Admin Email</th>
-                                    <th>Date Approved</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${approvedTableHTML}
-                            </tbody>
-                        </table>
-                    `;
-                } else {
-                    document.getElementById('approved-table-container').innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-check-circle"></i>
-                            <h3>No Approved Barangays</h3>
-                            <p>There are no approved barangays in the system yet.</p>
-                        </div>
-                    `;
-                }
-                
-                // Update stats - CHANGED: Renamed "Approved Barangays" to "User Approved"
-                document.getElementById('pending-barangays').textContent = pendingCount;
-                document.getElementById('total-barangays').textContent = pendingCount + approvedCount;
-                
-                // Add event listeners
-                attachEventListeners();
-                
-            }).catch(error => {
-                console.error("Error reading database:", error);
-                document.getElementById('pending-table-container').innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h3>Error Loading Data</h3>
-                        <p>Failed to load barangay data. Please try again.</p>
-                    </div>
-                `;
-            });
-        }
-
-        function attachEventListeners() {
-            // View barangay details
-            document.querySelectorAll('.btn-view').forEach(button => {
-                button.addEventListener('click', function() {
-                    const barangayId = this.getAttribute('data-id');
-                    const location = this.getAttribute('data-location');
-                    viewBarangayDetails(barangayId, location);
-                });
-            });
-            
-            // Approve barangay
-            document.querySelectorAll('.btn-approve').forEach(button => {
-                button.addEventListener('click', function() {
-                    const barangayId = this.getAttribute('data-id');
-                    const location = this.getAttribute('data-location');
-                    approveBarangay(barangayId, location);
-                });
-            });
-            
-            // Reject barangay
-            document.querySelectorAll('.btn-reject').forEach(button => {
-                button.addEventListener('click', function() {
-                    const barangayId = this.getAttribute('data-id');
-                    const location = this.getAttribute('data-location');
-                    const isDeactivate = this.closest('table').querySelector('thead th:last-child').textContent === 'Actions';
-                    if (isDeactivate) {
-                        deactivateBarangay(barangayId, location);
-                    } else {
-                        rejectBarangay(barangayId, location);
-                    }
-                });
-            });
-        }
-
-        function viewBarangayDetails(barangayId, location) {
-            const ref = database.ref(location + '/' + barangayId);
-            
-            ref.once('value').then((snapshot) => {
-                const barangay = snapshot.val();
-                
-                if (barangay) {
-                    showBarangayModal(barangay, barangay.status || 'pending');
-                } else {
-                    alert('Barangay data not found.');
-                }
-            });
-        }
-
-        function showBarangayModal(barangay, status) {
-            const dateField = status === 'approved' ? 'approvedAt' : 'createdAt';
-            const date = barangay[dateField] ? new Date(barangay[dateField]).toLocaleDateString() : 'Unknown date';
-            
-            document.getElementById('barangay-details').innerHTML = `
-                <div style="padding: 20px;">
-                    <h3 style="margin-bottom: 15px; color: var(--primary);">Barangay Information</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                        <div>
-                            <p><strong>Barangay Name:</strong> ${barangay.name || barangay.barangayName || 'Unknown'}</p>
-                            <p><strong>Municipality:</strong> ${barangay.city || barangay.municipality || 'Unknown'}</p>
-                            <p><strong>Admin Email:</strong> ${barangay.gmail || barangay.email || 'No email'}</p>
-                        </div>
-                        <div>
-                            <p><strong>Date ${status === 'approved' ? 'Approved' : 'Registered'}:</strong> ${date}</p>
-                            <p><strong>Status:</strong> <span class="status status-${status}">${status === 'approved' ? 'Approved' : 'Pending'}</span></p>
-                            ${barangay.adminName ? `<p><strong>Admin Name:</strong> ${barangay.adminName}</p>` : ''}
-                            ${barangay.adminPhone ? `<p><strong>Contact Number:</strong> ${barangay.adminPhone}</p>` : ''}
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.getElementById('barangay-modal').classList.add('active');
-        }
-
-        function approveBarangay(barangayId, location) {
-            if(confirm('Are you sure you want to approve this barangay?')) {
-                const ref = database.ref(location + '/' + barangayId);
-                
-                ref.once('value').then((snapshot) => {
-                    const barangay = snapshot.val();
-                    
-                    if (barangay) {
-                        ref.update({ 
-                            status: 'approved',
-                            approvedAt: new Date().toISOString()
-                        })
-                        .then(() => {
-                            const approvedRef = database.ref('approvedBarangays/' + barangayId);
-                            return approvedRef.set({
-                                ...barangay,
-                                status: 'approved',
-                                approvedAt: new Date().toISOString()
-                            });
-                        })
-                        .then(() => {
-                            alert('Barangay approved successfully! The barangay can now login using the "Barangay" role.');
-                            loadBarangayData();
-                            // Reload approved barangays for login form
-                            loadApprovedBarangays();
-                        })
-                        .catch((error) => {
-                            console.error('Error approving barangay:', error);
-                            alert('Error approving barangay. Please try again.');
-                        });
-                    } else {
-                        alert('Barangay data not found.');
-                    }
-                });
-            }
-        }
-
-        function rejectBarangay(barangayId, location) {
-            if(confirm('Are you sure you want to reject this barangay?')) {
-                const ref = database.ref(location + '/' + barangayId);
-                
-                ref.update({ status: 'rejected' })
-                    .then(() => {
-                        alert('Barangay rejected successfully!');
-                        loadBarangayData();
-                    })
-                    .catch((error) => {
-                        console.error('Error rejecting barangay:', error);
-                        alert('Error rejecting barangay. Please try again.');
-                    });
-            }
-        }
-
-        function deactivateBarangay(barangayId, location) {
-            if(confirm('Are you sure you want to deactivate this barangay?')) {
-                const ref = database.ref(location + '/' + barangayId);
-                const approvedRef = database.ref('approvedBarangays/' + barangayId);
-                
-                approvedRef.remove()
-                    .then(() => {
-                        return ref.update({ status: 'deactivated' });
-                    })
-                    .then(() => {
-                        alert('Barangay deactivated successfully!');
-                        loadBarangayData();
-                        // Reload approved barangays for login form
-                        loadApprovedBarangays();
-                    })
-                    .catch((error) => {
-                        console.error('Error deactivating barangay:', error);
-                        alert('Error deactivating barangay. Please try again.');
-                    });
-            }
         }
 
         function filterTable(containerId, searchText) {
@@ -4626,16 +4110,8 @@
             
             const data = [];
             
-            // Get approved barangays to generate realistic data
-            const barangays = [];
-            approvedBarangays.forEach(barangay => {
-                barangays.push(barangay.name);
-            });
-            
-            // If no barangays in Firebase, use default
-            if (barangays.length === 0) {
-                barangays.push('Casidman', 'Central');
-            }
+            // Use Casidman and Central for data generation
+            const barangays = ['Casidman', 'Central'];
             
             for (let i = 0; i < 50; i++) {
                 const date = new Date();
@@ -4835,33 +4311,14 @@
             const filter = document.getElementById('history-barangay-filter');
             filter.innerHTML = '<option value="all">All Barangays</option>';
             
-            // Load barangays from Firebase instead of hardcoded list
-            const approvedRef = database.ref('approvedBarangays');
-            approvedRef.once('value').then((snapshot) => {
-                const approvedData = snapshot.val();
-                
-                if (approvedData) {
-                    Object.values(approvedData).forEach(barangay => {
-                        if (barangay.status === 'approved') {
-                            const barangayName = barangay.name || barangay.barangayName;
-                            const option = document.createElement('option');
-                            option.value = barangayName.toLowerCase().replace(/\s+/g, '-');
-                            option.textContent = barangayName;
-                            filter.appendChild(option);
-                        }
-                    });
-                }
-                
-                // If no barangays found in Firebase, show a message
-                if (filter.children.length === 1) {
-                    const option = document.createElement('option');
-                    option.value = 'none';
-                    option.textContent = 'No barangays found';
-                    option.disabled = true;
-                    filter.appendChild(option);
-                }
-            }).catch((error) => {
-                console.error("Error loading barangays for filter:", error);
+            // Add Casidman and Central to filter
+            const barangays = ['Casidman', 'Central'];
+            
+            barangays.forEach(barangay => {
+                const option = document.createElement('option');
+                option.value = barangay.toLowerCase().replace(/\s+/g, '-');
+                option.textContent = barangay;
+                filter.appendChild(option);
             });
             
             // Add event listener for filter change
@@ -4913,178 +4370,6 @@
             });
         }
 
-        // UPDATED: Complete implementation of loadAllBarangays function - shows barangay names only
-        function loadAllBarangays() {
-            const container = document.getElementById('all-barangays-table-container');
-            container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-
-            // Load data from both pending and approved collections
-            const pendingRef = database.ref('pendingBarangays');
-            const approvedRef = database.ref('approvedBarangays');
-
-            Promise.all([
-                pendingRef.once('value'),
-                approvedRef.once('value')
-            ]).then(([pendingSnapshot, approvedSnapshot]) => {
-                const pendingData = pendingSnapshot.val() || {};
-                const approvedData = approvedSnapshot.val() || {};
-                
-                let allBarangays = [];
-
-                // Process pending barangays
-                Object.keys(pendingData).forEach(key => {
-                    const barangay = pendingData[key];
-                    if (barangay && (barangay.name || barangay.barangayName)) {
-                        allBarangays.push({
-                            id: key,
-                            name: barangay.name || barangay.barangayName,
-                            city: barangay.city || barangay.municipality || 'Unknown',
-                            email: barangay.gmail || barangay.email || 'No email',
-                            status: barangay.status || 'pending',
-                            date: barangay.createdAt ? new Date(barangay.createdAt).toLocaleDateString() : 'Unknown',
-                            type: 'pending'
-                        });
-                    }
-                });
-
-                // Process approved barangays
-                Object.keys(approvedData).forEach(key => {
-                    const barangay = approvedData[key];
-                    if (barangay && (barangay.name || barangay.barangayName)) {
-                        allBarangays.push({
-                            id: key,
-                            name: barangay.name || barangay.barangayName,
-                            city: barangay.city || barangay.municipality || 'Unknown',
-                            email: barangay.gmail || barangay.email || 'No email',
-                            status: barangay.status || 'approved',
-                            date: barangay.approvedAt ? new Date(barangay.approvedAt).toLocaleDateString() : 
-                                  (barangay.createdAt ? new Date(barangay.createdAt).toLocaleDateString() : 'Unknown'),
-                            type: 'approved'
-                        });
-                    }
-                });
-
-                displayAllBarangaysTable(allBarangays);
-            }).catch(error => {
-                console.error("Error loading all barangays:", error);
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h3>Error Loading Data</h3>
-                        <p>Failed to load barangay data. Please try again.</p>
-                    </div>
-                `;
-            });
-        }
-
-        function displayAllBarangaysTable(barangays) {
-            const container = document.getElementById('all-barangays-table-container');
-            
-            if (barangays.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <h3>No Barangays Found</h3>
-                        <p>There are no barangays registered in the system yet.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            let tableHTML = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Barangay Name</th>
-                            <th>Municipality</th>
-                            <th>Admin Email</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-
-            barangays.forEach(barangay => {
-                const statusClass = barangay.status === 'approved' ? 'status-approved' : 
-                                   barangay.status === 'pending' ? 'status-pending' : 
-                                   barangay.status === 'rejected' ? 'status-rejected' : 'status-pending';
-                
-                const statusText = barangay.status === 'approved' ? 'Active' : 
-                                  barangay.status === 'pending' ? 'Pending' : 
-                                  barangay.status === 'rejected' ? 'Rejected' : 'Pending';
-
-                tableHTML += `
-                    <tr data-id="${barangay.id}" data-type="${barangay.type}">
-                        <td>${barangay.name}</td>
-                        <td>${barangay.city}</td>
-                        <td>${barangay.email}</td>
-                        <td><span class="status ${statusClass}">${statusText}</span></td>
-                        <td>${barangay.date}</td>
-                        <td class="action-buttons">
-                            <button class="btn btn-view" data-id="${barangay.id}" data-type="${barangay.type}">View Details</button>
-                            ${barangay.status === 'pending' ? 
-                                `<button class="btn btn-approve" data-id="${barangay.id}" data-type="${barangay.type}">Approve</button>
-                                 <button class="btn btn-reject" data-id="${barangay.id}" data-type="${barangay.type}">Reject</button>` : 
-                                ''
-                            }
-                            ${barangay.status === 'approved' ? 
-                                `<button class="btn btn-reject" data-id="${barangay.id}" data-type="${barangay.type}">Deactivate</button>` : 
-                                ''
-                            }
-                        </td>
-                    </tr>
-                `;
-            });
-
-            tableHTML += `
-                    </tbody>
-                </table>
-            `;
-
-            container.innerHTML = tableHTML;
-            
-            // Add event listeners for the action buttons
-            attachAllBarangaysEventListeners();
-        }
-
-        function attachAllBarangaysEventListeners() {
-            // View details
-            document.querySelectorAll('#all-barangays-table-container .btn-view').forEach(button => {
-                button.addEventListener('click', function() {
-                    const barangayId = this.getAttribute('data-id');
-                    const type = this.getAttribute('data-type');
-                    const location = type === 'pending' ? 'pendingBarangays' : 'approvedBarangays';
-                    viewBarangayDetails(barangayId, location);
-                });
-            });
-            
-            // Approve barangay
-            document.querySelectorAll('#all-barangays-table-container .btn-approve').forEach(button => {
-                button.addEventListener('click', function() {
-                    const barangayId = this.getAttribute('data-id');
-                    approveBarangay(barangayId, 'pendingBarangays');
-                });
-            });
-            
-            // Reject/Deactivate barangay
-            document.querySelectorAll('#all-barangays-table-container .btn-reject').forEach(button => {
-                button.addEventListener('click', function() {
-                    const barangayId = this.getAttribute('data-id');
-                    const type = this.getAttribute('data-type');
-                    const row = this.closest('tr');
-                    const statusCell = row.querySelector('.status');
-                    
-                    if (statusCell.textContent === 'Pending') {
-                        rejectBarangay(barangayId, 'pendingBarangays');
-                    } else if (statusCell.textContent === 'Active') {
-                        deactivateBarangay(barangayId, 'approvedBarangays');
-                    }
-                });
-            });
-        }
-
         // Add search functionality for all barangays
         document.getElementById('search-all-barangays').addEventListener('input', function() {
             filterAllBarangaysTable(this.value);
@@ -5102,6 +4387,18 @@
             rows.forEach(row => {
                 const text = row.textContent.toLowerCase();
                 row.style.display = text.includes(searchLower) ? '' : 'none';
+            });
+        }
+
+        function setupPrintButtons() {
+            // Admin print button
+            document.getElementById('print-history-btn').addEventListener('click', function() {
+                window.print();
+            });
+
+            // Barangay print button
+            document.getElementById('print-barangay-history-btn').addEventListener('click', function() {
+                window.print();
             });
         }
     </script>
