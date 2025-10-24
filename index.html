@@ -1498,6 +1498,11 @@
                 background: white;
                 color: black;
             }
+            
+            /* Ensure all table rows are visible when printing */
+            table tbody tr {
+                display: table-row !important;
+            }
         }
 
         /* Notification Badge */
@@ -1740,7 +1745,6 @@
             }
         }
     </style>
-
 </head>
 <body>
     <!-- Login Page -->
@@ -1906,8 +1910,9 @@
                         </div>
                     </div>
 
-                    <!-- Charts Section - Updated Card Titles -->
+                    <!-- Charts Section - MODIFIED -->
                     <div class="charts-container">
+                        <!-- Central Air Quality Index Trend -->
                         <div class="chart-card">
                             <div class="chart-header">
                                 <h3>Central Air Quality Index Trend</h3>
@@ -1919,13 +1924,22 @@
                                     </select>
                                 </div>
                             </div>
-                            <canvas id="aqiChart"></canvas>
+                            <canvas id="centralAqiChart"></canvas>
                         </div>
+                        
+                        <!-- Casidman Air Quality Index Trend -->
                         <div class="chart-card">
                             <div class="chart-header">
                                 <h3>Casidman Air Quality Index Trend</h3>
+                                <div class="chart-actions">
+                                    <select id="casidman-time-period">
+                                        <option value="week">Last Week</option>
+                                        <option value="month" selected>Last Month</option>
+                                        <option value="year">Last Year</option>
+                                    </select>
+                                </div>
                             </div>
-                            <canvas id="dustChart"></canvas>
+                            <canvas id="casidmanAqiChart"></canvas>
                         </div>
                     </div>
 
@@ -2153,10 +2167,10 @@
                             </div>
                         </div>
 
-                        <!-- Charts - Updated Titles -->
+                        <!-- Charts -->
                         <div class="chart-container">
                             <div class="card-header">
-                                <h3 class="card-title">Central Air Quality Trend</h3>
+                                <h3 class="card-title">Air Quality Trend</h3>
                                 <div class="time-filter">
                                     <select id="airQualityTimeFilter">
                                         <option value="1h">Last 1 hour</option>
@@ -2171,7 +2185,7 @@
                         
                         <div class="chart-container">
                             <div class="card-header">
-                                <h3 class="card-title">Casidman Air Quality Trend</h3>
+                                <h3 class="card-title">Dust Level Trend</h3>
                                 <div class="time-filter">
                                     <select id="dustTimeFilter">
                                         <option value="1h">Last 1 hour</option>
@@ -2328,15 +2342,15 @@
     <script>
         // Firebase configuration
         const firebaseConfig = {
-  apiKey: "AIzaSyD-q_sjDr815xyKHnw4qupJoFeCa89rsTg",
-  authDomain: "air-quality-monitoring-s-d6123.firebaseapp.com",
-  databaseURL: "https://air-quality-monitoring-s-d6123-default-rtdb.firebaseio.com",
-  projectId: "air-quality-monitoring-s-d6123",
-  storageBucket: "air-quality-monitoring-s-d6123.firebasestorage.app",
-  messagingSenderId: "410958753987",
-  appId: "1:410958753987:web:546a09493fae6d8623f276",
-  measurementId: "G-MQZTPTJXWP"
-};
+      apiKey: "AIzaSyD-q_sjDr815xyKHnw4qupJoFeCa89rsTg",
+      authDomain: "air-quality-monitoring-s-d6123.firebaseapp.com",
+      databaseURL: "https://air-quality-monitoring-s-d6123-default-rtdb.firebaseio.com",
+      projectId: "air-quality-monitoring-s-d6123",
+      storageBucket: "air-quality-monitoring-s-d6123.firebasestorage.app",
+      messagingSenderId: "410958753987",
+      appId: "1:410958753987:web:546a09493fae6d8623f276",
+      measurementId: "G-MQZTPTJXWP"
+    };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -2356,31 +2370,15 @@
             name: "System Administrator"
         };
 
-        // Chart instances tracking
+        // Chart instances tracking - MODIFIED
         let chartInstances = {
             admin: {
-                aqi: null,
-                dust: null
+                centralAqi: null,
+                casidmanAqi: null
             },
             barangay: {
                 aqi: null,
                 dust: null
-            }
-        };
-
-        // Live data simulation for each barangay
-        const barangayLiveData = {
-            'casidman': {
-                aqi: 42,
-                dust: 114.89576,
-                status: 'Good',
-                lastUpdate: new Date()
-            },
-            'central': {
-                aqi: 48,
-                dust: 116.78901,
-                status: 'Good',
-                lastUpdate: new Date()
             }
         };
 
@@ -2411,87 +2409,7 @@
 
             // Print functionality
             setupPrintButtons();
-
-            // Start live data updates
-            startLiveDataUpdates();
         });
-
-        // Start live data updates for all barangays
-        function startLiveDataUpdates() {
-            setInterval(() => {
-                updateLiveBarangayData();
-            }, 5000); // Update every 5 seconds
-        }
-
-        // Update live data for all barangays
-        function updateLiveBarangayData() {
-            // Update data for each barangay
-            Object.keys(barangayLiveData).forEach(barangay => {
-                // Simulate small fluctuations in data
-                const currentAqi = barangayLiveData[barangay].aqi;
-                const currentDust = barangayLiveData[barangay].dust;
-                
-                // Generate new values with small random fluctuations
-                const newAqi = Math.max(0, Math.min(300, currentAqi + (Math.random() * 4 - 2)));
-                const newDust = Math.max(100, Math.min(130, currentDust + (Math.random() * 0.5 - 0.25)));
-                
-                // Determine status based on AQI
-                let newStatus = 'Good';
-                if (newAqi > 50 && newAqi <= 100) {
-                    newStatus = 'Moderate';
-                } else if (newAqi > 100) {
-                    newStatus = 'Polluted';
-                }
-                
-                // Update data
-                barangayLiveData[barangay] = {
-                    aqi: Math.round(newAqi),
-                    dust: parseFloat(newDust.toFixed(5)),
-                    status: newStatus,
-                    lastUpdate: new Date()
-                };
-            });
-
-            // Update UI if admin dashboard is active
-            if (document.getElementById('admin-dashboard').style.display === 'flex') {
-                updateAdminLiveData();
-            }
-
-            // Update UI if barangay dashboard is active
-            if (document.getElementById('barangay-dashboard').style.display === 'flex') {
-                const barangayName = localStorage.getItem('barangayName');
-                if (barangayName && barangayLiveData[barangayName.toLowerCase()]) {
-                    updateBarangayRealTimeData(barangayName);
-                }
-            }
-        }
-
-        // Update admin dashboard with live data
-        function updateAdminLiveData() {
-            // Update the barangay information table with live data
-            const tableBody = document.querySelector('#approved-table-container tbody');
-            if (tableBody) {
-                const rows = tableBody.querySelectorAll('tr');
-                rows.forEach(row => {
-                    const barangayNameCell = row.cells[0];
-                    if (barangayNameCell) {
-                        const barangayName = barangayNameCell.textContent.toLowerCase();
-                        if (barangayLiveData[barangayName]) {
-                            const data = barangayLiveData[barangayName];
-                            // Update status cell if it exists
-                            const statusCell = row.cells[3];
-                            if (statusCell) {
-                                const statusSpan = statusCell.querySelector('.status');
-                                if (statusSpan) {
-                                    statusSpan.textContent = data.status;
-                                    statusSpan.className = `status status-${data.status.toLowerCase()}`;
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        }
 
         // Initialize default admin account
         function initializeDefaultAdmin() {
@@ -2893,40 +2811,83 @@
             setupApprovalMonitoring();
         }
 
-        // Update barangay real-time data
+        // Update barangay real-time data - ENHANCED with Firebase integration
         function updateBarangayRealTimeData(barangayName) {
-            const barangayKey = barangayName.toLowerCase();
+            // Reference to the specific barangay data in Firebase
+            const barangayRef = database.ref(`barangayData/${barangayName.toLowerCase()}`);
             
-            if (barangayLiveData[barangayKey]) {
-                const data = barangayLiveData[barangayKey];
+            // Listen for real-time updates
+            barangayRef.on('value', (snapshot) => {
+                const data = snapshot.val();
                 
-                document.getElementById('progressValue').textContent = data.aqi;
-                document.getElementById('dustLevelValue').textContent = `${data.dust.toFixed(5)}`;
-                
-                // Update AQI status
-                updateAQIStatus(data.aqi);
-                
-                // Update circular progress bar
-                updateCircularProgress(data.aqi);
-                
-                // Update AQI scale marker
-                updateAQIScaleMarker(data.aqi);
-                
-                // Update min/max AQI
-                updateMinMaxAQI(barangayKey);
-            }
+                if (data) {
+                    // Update AQI value
+                    document.getElementById('progressValue').textContent = data.aqi || 0;
+                    
+                    // Update dust level
+                    document.getElementById('dustLevelValue').textContent = 
+                        data.dust ? data.dust.toFixed(5) : '0.000';
+                    
+                    // Update AQI status
+                    updateAQIStatus(data.aqi || 0);
+                    
+                    // Update circular progress bar
+                    updateCircularProgress(data.aqi || 0);
+                    
+                    // Update AQI scale marker
+                    updateAQIScaleMarker(data.aqi || 0);
+                    
+                    // Update min/max AQI
+                    updateMinMaxAQI(data.aqi || 0);
+                    
+                    // Update charts with new data
+                    updateBarangayCharts(data);
+                }
+            });
+            
+            // Also fetch historical data for charts
+            fetchBarangayHistoricalData(barangayName);
         }
 
         // Update min/max AQI values
-        function updateMinMaxAQI(barangayKey) {
-            // In a real implementation, this would fetch historical data
-            // For now, we'll simulate with values around the current AQI
-            const currentAqi = barangayLiveData[barangayKey].aqi;
-            const minAQI = Math.max(0, currentAqi - 5);
-            const maxAQI = Math.min(300, currentAqi + 5);
+        function updateMinMaxAQI(currentAQI) {
+            // Get current min/max values
+            let minAQI = parseInt(document.getElementById('minAQI').textContent) || currentAQI;
+            let maxAQI = parseInt(document.getElementById('maxAQI').textContent) || currentAQI;
             
+            // Update if needed
+            if (currentAQI < minAQI) minAQI = currentAQI;
+            if (currentAQI > maxAQI) maxAQI = currentAQI;
+            
+            // Update display
             document.getElementById('minAQI').textContent = minAQI;
             document.getElementById('maxAQI').textContent = maxAQI;
+        }
+
+        // Fetch historical data for charts
+        function fetchBarangayHistoricalData(barangayName) {
+            const historyRef = database.ref(`barangayHistory/${barangayName.toLowerCase()}`);
+            
+            historyRef.limitToLast(24).once('value').then((snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    updateBarangayChartsWithHistory(data);
+                }
+            });
+        }
+
+        // Update barangay charts with historical data
+        function updateBarangayChartsWithHistory(historyData) {
+            // Implementation would process historical data and update charts
+            // This is a simplified version
+            console.log("Updating charts with historical data:", historyData);
+        }
+
+        // Update barangay charts with new data point
+        function updateBarangayCharts(data) {
+            // Implementation would add new data point to existing charts
+            // This is a simplified version
+            console.log("Updating charts with new data:", data);
         }
 
         // Update AQI status
@@ -3895,25 +3856,26 @@
             });
         }
 
+        // MODIFIED: Initialize admin charts with Central and Casidman AQI trends
         function initializeAdminCharts() {
             // Destroy existing charts if they exist
-            if (chartInstances.admin.aqi) {
-                chartInstances.admin.aqi.destroy();
+            if (chartInstances.admin.centralAqi) {
+                chartInstances.admin.centralAqi.destroy();
             }
-            if (chartInstances.admin.dust) {
-                chartInstances.admin.dust.destroy();
+            if (chartInstances.admin.casidmanAqi) {
+                chartInstances.admin.casidmanAqi.destroy();
             }
 
             // Central AQI Chart
-            const aqiCtx = document.getElementById('aqiChart');
-            if (aqiCtx) {
-                chartInstances.admin.aqi = new Chart(aqiCtx, {
+            const centralAqiCtx = document.getElementById('centralAqiChart');
+            if (centralAqiCtx) {
+                chartInstances.admin.centralAqi = new Chart(centralAqiCtx, {
                     type: 'line',
                     data: {
                         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
                         datasets: [{
                             label: 'Central Air Quality Index',
-                            data: [65, 59, 80, 81, 56, 55, 40],
+                            data: [45, 52, 48, 55, 60, 58, 62],
                             borderColor: '#3498db',
                             backgroundColor: 'rgba(52, 152, 219, 0.1)',
                             borderWidth: 2,
@@ -3947,17 +3909,17 @@
             }
 
             // Casidman AQI Chart
-            const dustCtx = document.getElementById('dustChart');
-            if (dustCtx) {
-                chartInstances.admin.dust = new Chart(dustCtx, {
+            const casidmanAqiCtx = document.getElementById('casidmanAqiChart');
+            if (casidmanAqiCtx) {
+                chartInstances.admin.casidmanAqi = new Chart(casidmanAqiCtx, {
                     type: 'line',
                     data: {
                         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
                         datasets: [{
                             label: 'Casidman Air Quality Index',
-                            data: [114.89, 115.23, 116.78, 113.45, 117.12, 118.56, 115.98],
-                            borderColor: '#f39c12',
-                            backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                            data: [42, 48, 45, 50, 55, 52, 58],
+                            borderColor: '#2ecc71',
+                            backgroundColor: 'rgba(46, 204, 113, 0.1)',
                             borderWidth: 2,
                             fill: true,
                             tension: 0.4
@@ -3974,6 +3936,49 @@
                     }
                 });
             }
+            
+            // Fetch live data for both barangays
+            fetchLiveBarangayData();
+        }
+
+        // Fetch live data for both Central and Casidman
+        function fetchLiveBarangayData() {
+            // Central data
+            const centralRef = database.ref('barangayData/central');
+            centralRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data && chartInstances.admin.centralAqi) {
+                    updateAdminChartWithLiveData(chartInstances.admin.centralAqi, data.aqi);
+                }
+            });
+            
+            // Casidman data
+            const casidmanRef = database.ref('barangayData/casidman');
+            casidmanRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data && chartInstances.admin.casidmanAqi) {
+                    updateAdminChartWithLiveData(chartInstances.admin.casidmanAqi, data.aqi);
+                }
+            });
+        }
+
+        // Update admin chart with live data
+        function updateAdminChartWithLiveData(chart, newAqi) {
+            // Add new data point to the chart
+            const currentTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            // Add new label and data point
+            chart.data.labels.push(currentTime);
+            chart.data.datasets[0].data.push(newAqi);
+            
+            // Keep only the last 12 data points
+            if (chart.data.labels.length > 12) {
+                chart.data.labels.shift();
+                chart.data.datasets[0].data.shift();
+            }
+            
+            // Update the chart
+            chart.update('active');
         }
 
         function initializeBarangayCharts() {
@@ -3985,7 +3990,7 @@
                 chartInstances.barangay.dust.destroy();
             }
 
-            // Central Air Quality Chart
+            // Air Quality Chart
             const airCtx = document.getElementById('airChart');
             if (airCtx) {
                 chartInstances.barangay.aqi = new Chart(airCtx, {
@@ -3993,7 +3998,7 @@
                     data: {
                         labels: ['6AM', '9AM', '12PM', '3PM', '6PM', '9PM'],
                         datasets: [{
-                            label: 'Central AQI',
+                            label: 'AQI',
                             data: [35, 42, 38, 45, 50, 48],
                             borderColor: '#3498db',
                             backgroundColor: 'rgba(52, 152, 219, 0.1)',
@@ -4035,7 +4040,7 @@
                 });
             }
 
-            // Casidman Air Quality Chart
+            // Dust Level Chart
             const dustCtx = document.getElementById('dustChart');
             if (dustCtx) {
                 chartInstances.barangay.dust = new Chart(dustCtx, {
@@ -4043,7 +4048,7 @@
                     data: {
                         labels: ['6AM', '9AM', '12PM', '3PM', '6PM', '9PM'],
                         datasets: [{
-                            label: 'Casidman AQI',
+                            label: 'Dust Level (mg/m³)',
                             data: [114.89, 115.23, 116.78, 113.45, 117.12, 118.56],
                             borderColor: '#f39c12',
                             backgroundColor: 'rgba(243, 156, 18, 0.1)',
@@ -4072,7 +4077,7 @@
                                 },
                                 title: {
                                     display: true,
-                                    text: 'AQI Value'
+                                    text: 'Dust Level (mg/m³)'
                                 }
                             },
                             x: {
@@ -4492,14 +4497,42 @@
             });
         }
 
+        // Setup print buttons - MODIFIED to ensure no pagination in print
         function setupPrintButtons() {
             // Admin print button
             document.getElementById('print-history-btn').addEventListener('click', function() {
+                // Before printing, ensure all table rows are visible
+                const historyTableBody = document.getElementById('history-table-body');
+                if (historyTableBody) {
+                    const rows = historyTableBody.querySelectorAll('tr');
+                    rows.forEach(row => {
+                        row.style.display = 'table-row';
+                    });
+                }
+                
+                // Also ensure all barangay history rows are visible
+                const barangayHistoryTableBody = document.getElementById('barangay-history-table-body');
+                if (barangayHistoryTableBody) {
+                    const rows = barangayHistoryTableBody.querySelectorAll('tr');
+                    rows.forEach(row => {
+                        row.style.display = 'table-row';
+                    });
+                }
+                
                 window.print();
             });
 
             // Barangay print button
             document.getElementById('print-barangay-history-btn').addEventListener('click', function() {
+                // Before printing, ensure all table rows are visible
+                const barangayHistoryTableBody = document.getElementById('barangay-history-table-body');
+                if (barangayHistoryTableBody) {
+                    const rows = barangayHistoryTableBody.querySelectorAll('tr');
+                    rows.forEach(row => {
+                        row.style.display = 'table-row';
+                    });
+                }
+                
                 window.print();
             });
         }
