@@ -2019,6 +2019,9 @@
                                 <i class="fas fa-search"></i>
                                 <input type="text" id="search-approved-users" placeholder="Search users...">
                             </div>
+                        <button id="add-new-user-btn" style="padding: 8px 15px; background: var(--accent); color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            <i class="fas fa-plus"></i> Add New User
+                        </button>
                         </div>
                         <div id="approved-users-table-container">
                             <div class="loading">
@@ -2360,6 +2363,16 @@
                 <input type="password" id="user-confirm-password" class="modal-input" placeholder="Confirm password" required>
             </div>
             
+            <div class="input-group">
+                <label for="user-role">User Role</label>
+                <select id="user-role" class="modal-input" required>
+                    <option value="" disabled selected>Select user role</option>
+                    <option value="barangay">Barangay User</option>
+                    <option value="casidman">Casidman</option>
+                    <option value="central">Central</option>
+                </select>
+            </div>
+            
             <button class="modal-button" id="add-user-button">
                 <i class="fas fa-plus-circle"></i> Register User
             </button>
@@ -2479,6 +2492,403 @@
         // Initialize Firebase data structure
         setTimeout(initializeFirebaseDataStructure, 2000);
     });
+
+    // ==================== USER REGISTRATION & PENDING REQUESTS ====================
+
+    // Add User Registration functionality
+    document.getElementById('add-user-button').addEventListener('click', function() {
+        registerNewUser();
+    });
+
+    // Add New User button in admin dashboard
+    document.getElementById('add-new-user-btn').addEventListener('click', function() {
+        document.getElementById('add-user-modal').classList.add('active');
+    });
+
+    function registerNewUser() {
+        const name = document.getElementById('user-name').value.trim();
+        const email = document.getElementById('user-email').value.trim();
+        const password = document.getElementById('user-password').value;
+        const confirmPassword = document.getElementById('user-confirm-password').value;
+        const role = document.getElementById('user-role').value;
+        const messageElement = document.getElementById('user-message');
+
+        // Validation
+        if (!name || !email || !password || !confirmPassword || !role) {
+            showMessage(messageElement, 'Please fill in all fields.', 'error');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            showMessage(messageElement, 'Passwords do not match.', 'error');
+            return;
+        }
+
+        if (password.length < 6) {
+            showMessage(messageElement, 'Password must be at least 6 characters long.', 'error');
+            return;
+        }
+
+        // Create user in Firebase Auth
+        auth.createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                
+                // Store user data in Firebase Database with pending status
+                return database.ref('pendingUsers/' + user.uid).set({
+                    name: name,
+                    email: email,
+                    role: role,
+                    status: 'pending',
+                    createdAt: new Date().toISOString(),
+                    createdBy: auth.currentUser ? auth.currentUser.uid : 'system'
+                });
+            })
+            .then(() => {
+                showMessage(messageElement, 'User registered successfully! Waiting for admin approval.', 'success');
+                
+                // Clear form
+                document.getElementById('user-name').value = '';
+                document.getElementById('user-email').value = '';
+                document.getElementById('user-password').value = '';
+                document.getElementById('user-confirm-password').value = '';
+                document.getElementById('user-role').value = '';
+                
+                // Update pending requests count
+                updatePendingRequestsCount();
+                
+                // Close modal after 2 seconds
+                setTimeout(() => {
+                    document.getElementById('add-user-modal').classList.remove('active');
+                }, 2000);
+            })
+            .catch((error) => {
+                console.error('Error registering user:', error);
+                showMessage(messageElement, 'Error registering user: ' + error.message, 'error');
+            });
+    }
+
+    // Enhanced function to load user data for admin
+    function loadUserData() {
+        const pendingContainer = document.getElementById('pending-users-table-container');
+        const approvedContainer = document.getElementById('approved-users-table-container');
+        
+        pendingContainer.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+        approvedContainer.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+        
+        // Load pending users from Firebase
+        loadPendingUsers();
+        
+        // Load approved users from Firebase
+        loadApprovedUsers();
+        
+        // Update notification badge
+        updatePendingRequestsCount();
+    }
+
+    function loadPendingUsers() {
+        const pendingContainer = document.getElementById('pending-users-table-container');
+        
+        database.ref('pendingUsers').once('value')
+            .then((snapshot) => {
+                const pendingUsers = snapshot.val();
+                
+                if (!pendingUsers || Object.keys(pendingUsers).length === 0) {
+                    pendingContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-users"></i>
+                            <h3>No Pending Users</h3>
+                            <p>There are no user registration requests pending approval.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let tableHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Date Requested</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                Object.keys(pendingUsers).forEach(userId => {
+                    const user = pendingUsers[userId];
+                    const date = new Date(user.createdAt).toLocaleDateString();
+                    
+                    tableHTML += `
+                        <tr data-id="${userId}">
+                            <td>${user.name}</td>
+                            <td>${user.email}</td>
+                            <td>${user.role || 'barangay'}</td>
+                            <td>${date}</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-approve" data-id="${userId}">Approve</button>
+                                <button class="btn btn-reject" data-id="${userId}">Reject</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tableHTML += `
+                        </tbody>
+                    </table>
+                `;
+
+                pendingContainer.innerHTML = tableHTML;
+                
+                // Add event listeners for approve/reject buttons
+                document.querySelectorAll('#pending-users-table-container .btn-approve').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const userId = this.getAttribute('data-id');
+                        approveUser(userId);
+                    });
+                });
+                
+                document.querySelectorAll('#pending-users-table-container .btn-reject').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const userId = this.getAttribute('data-id');
+                        rejectUser(userId);
+                    });
+                });
+            })
+            .catch((error) => {
+                console.error('Error loading pending users:', error);
+                pendingContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error Loading Users</h3>
+                        <p>Unable to load pending users. Please try again.</p>
+                    </div>
+                `;
+            });
+    }
+
+    function loadApprovedUsers() {
+        const approvedContainer = document.getElementById('approved-users-table-container');
+        
+        database.ref('approvedUsers').once('value')
+            .then((snapshot) => {
+                const approvedUsers = snapshot.val();
+                
+                if (!approvedUsers || Object.keys(approvedUsers).length === 0) {
+                    approvedContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-users"></i>
+                            <h3>No Approved Users</h3>
+                            <p>There are no approved users in the system yet.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let tableHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Date Approved</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                Object.keys(approvedUsers).forEach(userId => {
+                    const user = approvedUsers[userId];
+                    const date = new Date(user.approvedAt).toLocaleDateString();
+                    
+                    tableHTML += `
+                        <tr data-id="${userId}">
+                            <td>${user.name}</td>
+                            <td>${user.email}</td>
+                            <td>${user.role || 'barangay'}</td>
+                            <td>${date}</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-reject" data-id="${userId}">Deactivate</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tableHTML += `
+                        </tbody>
+                    </table>
+                `;
+
+                approvedContainer.innerHTML = tableHTML;
+                
+                // Update user counts
+                const userCount = Object.keys(approvedUsers).length;
+                document.getElementById('user-accounts').textContent = userCount;
+                document.getElementById('user-approved').textContent = userCount;
+                
+                // Add event listeners for deactivate buttons
+                document.querySelectorAll('#approved-users-table-container .btn-reject').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const userId = this.getAttribute('data-id');
+                        deactivateUser(userId);
+                    });
+                });
+            })
+            .catch((error) => {
+                console.error('Error loading approved users:', error);
+                approvedContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error Loading Users</h3>
+                        <p>Unable to load approved users. Please try again.</p>
+                    </div>
+                `;
+            });
+    }
+
+    function approveUser(userId) {
+        if (!confirm('Are you sure you want to approve this user?')) {
+            return;
+        }
+        
+        // Get user data from pending users
+        database.ref('pendingUsers/' + userId).once('value')
+            .then((snapshot) => {
+                const userData = snapshot.val();
+                
+                if (!userData) {
+                    alert('User data not found.');
+                    return;
+                }
+                
+                // Move user to approved users
+                const approvedUserData = {
+                    ...userData,
+                    approvedAt: new Date().toISOString(),
+                    approvedBy: auth.currentUser ? auth.currentUser.uid : 'admin'
+                };
+                
+                // Add to approved users
+                return database.ref('approvedUsers/' + userId).set(approvedUserData)
+                    .then(() => {
+                        // Remove from pending users
+                        return database.ref('pendingUsers/' + userId).remove();
+                    });
+            })
+            .then(() => {
+                alert('User approved successfully!');
+                // Reload user data
+                loadUserData();
+            })
+            .catch((error) => {
+                console.error('Error approving user:', error);
+                alert('Error approving user: ' + error.message);
+            });
+    }
+
+    function rejectUser(userId) {
+        if (!confirm('Are you sure you want to reject this user?')) {
+            return;
+        }
+        
+        database.ref('pendingUsers/' + userId).remove()
+            .then(() => {
+                alert('User rejected successfully!');
+                // Reload user data
+                loadUserData();
+            })
+            .catch((error) => {
+                console.error('Error rejecting user:', error);
+                alert('Error rejecting user: ' + error.message);
+            });
+    }
+
+    function deactivateUser(userId) {
+        if (!confirm('Are you sure you want to deactivate this user?')) {
+            return;
+        }
+        
+        // Get user data from approved users
+        database.ref('approvedUsers/' + userId).once('value')
+            .then((snapshot) => {
+                const userData = snapshot.val();
+                
+                if (!userData) {
+                    alert('User data not found.');
+                    return;
+                }
+                
+                // Move user to deactivated users
+                const deactivatedUserData = {
+                    ...userData,
+                    deactivatedAt: new Date().toISOString(),
+                    deactivatedBy: auth.currentUser ? auth.currentUser.uid : 'admin'
+                };
+                
+                // Add to deactivated users
+                return database.ref('deactivatedUsers/' + userId).set(deactivatedUserData)
+                    .then(() => {
+                        // Remove from approved users
+                        return database.ref('approvedUsers/' + userId).remove();
+                    });
+            })
+            .then(() => {
+                alert('User deactivated successfully!');
+                // Reload user data
+                loadUserData();
+            })
+            .catch((error) => {
+                console.error('Error deactivating user:', error);
+                alert('Error deactivating user: ' + error.message);
+            });
+    }
+
+    function updatePendingRequestsCount() {
+        database.ref('pendingUsers').once('value')
+            .then((snapshot) => {
+                const pendingUsers = snapshot.val();
+                const count = pendingUsers ? Object.keys(pendingUsers).length : 0;
+                
+                // Update notification badge
+                const badge = document.getElementById('user-notification-badge');
+                if (count > 0) {
+                    badge.textContent = count;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            })
+            .catch((error) => {
+                console.error('Error updating pending requests count:', error);
+            });
+    }
+
+    // Listen for real-time updates to pending requests
+    function setupPendingRequestsListener() {
+        database.ref('pendingUsers').on('value', (snapshot) => {
+            const pendingUsers = snapshot.val();
+            const count = pendingUsers ? Object.keys(pendingUsers).length : 0;
+            
+            // Update notification badge
+            const badge = document.getElementById('user-notification-badge');
+            if (count > 0) {
+                badge.textContent = count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+            
+            // If we're on the users section, refresh the data
+            if (document.getElementById('users-section').style.display !== 'none') {
+                loadPendingUsers();
+            }
+        });
+    }
 
     // ==================== FIREBASE DATA FUNCTIONS ====================
 
@@ -3340,7 +3750,6 @@
 
     // ==================== AUTHENTICATION & USER MANAGEMENT ====================
 
-    // [Previous authentication functions remain the same...]
     // Initialize default admin account
     function initializeDefaultAdmin() {
         console.log("🔐 Initializing default admin account...");
@@ -3371,22 +3780,58 @@
         
         if (userEmail && userRole) {
             console.log('👤 User is already logged in as:', userRole);
-            // User is logged in, redirect to appropriate dashboard
-            if (userRole === 'admin') {
-                showAdminDashboard();
-            } else if (userRole === 'barangay') {
-                const barangayName = localStorage.getItem('barangayName');
-                showBarangayDashboard(barangayName);
-            } else {
-                // For specific barangays like casidman, central
-                showBarangayDashboard(userRole);
-            }
+            // Check if user is still approved
+            checkUserApproval(userEmail, userRole);
         } else {
             // Auto-fill default admin credentials if no user is logged in
             setTimeout(() => {
                 autoFillDefaultAdmin();
             }, 1000);
         }
+    }
+
+    // Check if user is approved before allowing login
+    function checkUserApproval(email, role) {
+        if (role === 'admin') {
+            // Admin can always login
+            showAdminDashboard();
+            return;
+        }
+        
+        // Check if user is in approvedUsers
+        database.ref('approvedUsers').orderByChild('email').equalTo(email).once('value')
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    // User is approved - show dashboard
+                    const userData = Object.values(snapshot.val())[0];
+                    showBarangayDashboard(userData.role || role);
+                } else {
+                    // User is not approved - check if in pending
+                    database.ref('pendingUsers').orderByChild('email').equalTo(email).once('value')
+                        .then((pendingSnapshot) => {
+                            if (pendingSnapshot.exists()) {
+                                // User is pending approval
+                                localStorage.removeItem('userRole');
+                                localStorage.removeItem('userEmail');
+                                localStorage.removeItem('barangayName');
+                                showLoginPage();
+                                alert('Your account is pending admin approval. Please wait for approval before logging in.');
+                            } else {
+                                // No account found
+                                localStorage.removeItem('userRole');
+                                localStorage.removeItem('userEmail');
+                                localStorage.removeItem('barangayName');
+                                showLoginPage();
+                                alert('No approved account found with these credentials.');
+                            }
+                        });
+                }
+            })
+            .catch((error) => {
+                console.error('Error checking user approval:', error);
+                showLoginPage();
+                alert('Error checking user status. Please try again.');
+            });
     }
 
     // Handle login
@@ -3411,51 +3856,99 @@
         handleDemoLogin(email, password, roleValue);
     }
 
-    // Handle demo login (simplified for testing)
+    // Handle demo login with approval check
     function handleDemoLogin(email, password, role) {
         console.log(`🔐 Demo login attempt: ${email} as ${role}`);
         
-        // Store user info
-        localStorage.setItem('userRole', role);
-        localStorage.setItem('userEmail', email);
-        
         if (role === 'admin') {
+            // Admin can always login
+            localStorage.setItem('userRole', role);
+            localStorage.setItem('userEmail', email);
             localStorage.setItem('barangayName', 'Admin');
-        } else {
-            localStorage.setItem('barangayName', role.charAt(0).toUpperCase() + role.slice(1));
-        }
-        
-        showSuccess();
-        
-        setTimeout(() => {
-            if (role === 'admin') {
+            showSuccess();
+            
+            setTimeout(() => {
                 showAdminDashboard();
-            } else {
-                showBarangayDashboard(role);
-            }
-        }, 2000);
+            }, 2000);
+        } else {
+            // Check if user is approved
+            database.ref('approvedUsers').orderByChild('email').equalTo(email).once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        // User is approved - allow login
+                        const userData = Object.values(snapshot.val())[0];
+                        
+                        localStorage.setItem('userRole', userData.role || role);
+                        localStorage.setItem('userEmail', email);
+                        localStorage.setItem('barangayName', userData.role || role);
+                        
+                        showSuccess();
+                        
+                        setTimeout(() => {
+                            showBarangayDashboard(userData.role || role);
+                        }, 2000);
+                    } else {
+                        // Check if user is pending
+                        database.ref('pendingUsers').orderByChild('email').equalTo(email).once('value')
+                            .then((pendingSnapshot) => {
+                                if (pendingSnapshot.exists()) {
+                                    showError('Your account is pending admin approval. Please wait for approval before logging in.');
+                                } else {
+                                    showError('No approved account found with these credentials. Please register first.');
+                                }
+                                resetLoginButton();
+                            });
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error checking user approval:', error);
+                    showError('Login error. Please try again.');
+                    resetLoginButton();
+                });
+        }
     }
 
     // ==================== DASHBOARD MANAGEMENT ====================
 
-    // Show barangay dashboard
+    // Show barangay dashboard with approval check
     function showBarangayDashboard(barangayName) {
-        document.getElementById('login-page').style.display = 'none';
-        document.getElementById('barangay-dashboard').style.display = 'flex';
+        const userEmail = localStorage.getItem('userEmail');
         
-        // Update dashboard title and user info
-        const displayName = barangayName.charAt(0).toUpperCase() + barangayName.slice(1);
-        document.getElementById('barangay-dashboard-title').textContent = `Barangay Overview - ${displayName}`;
-        document.getElementById('barangay-user-name').textContent = displayName;
-        
-        // Initialize appropriate dashboard based on barangay
-        if (barangayName.toLowerCase() === 'central') {
-            initializeCentralDashboard();
-        } else if (barangayName.toLowerCase() === 'casidman') {
-            initializeCasidmanDashboard();
-        } else {
-            // Default to Central if barangay not recognized
-            initializeCentralDashboard();
+        // Double-check user approval status
+        if (barangayName !== 'admin') {
+            database.ref('approvedUsers').orderByChild('email').equalTo(userEmail).once('value')
+                .then((snapshot) => {
+                    if (!snapshot.exists()) {
+                        // User is no longer approved - logout
+                        alert('Your account is no longer approved. Please contact administrator.');
+                        logout();
+                        return;
+                    }
+                    
+                    // User is approved - show dashboard
+                    document.getElementById('login-page').style.display = 'none';
+                    document.getElementById('barangay-dashboard').style.display = 'flex';
+                    
+                    // Update dashboard title and user info
+                    const displayName = barangayName.charAt(0).toUpperCase() + barangayName.slice(1);
+                    document.getElementById('barangay-dashboard-title').textContent = `Barangay Overview - ${displayName}`;
+                    document.getElementById('barangay-user-name').textContent = displayName;
+                    
+                    // Initialize appropriate dashboard based on barangay
+                    if (barangayName.toLowerCase() === 'central') {
+                        initializeCentralDashboard();
+                    } else if (barangayName.toLowerCase() === 'casidman') {
+                        initializeCasidmanDashboard();
+                    } else {
+                        // Default to Central if barangay not recognized
+                        initializeCentralDashboard();
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error checking user approval:', error);
+                    alert('Error verifying user status. Please login again.');
+                    logout();
+                });
         }
     }
 
@@ -3471,6 +3964,18 @@
         
         loadUserData();
         loadBarangayData();
+        
+        // Setup real-time listener for pending requests
+        setupPendingRequestsListener();
+    }
+
+    // Logout function
+    function logout() {
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('barangayName');
+        localStorage.removeItem('barangayId');
+        showLoginPage();
     }
 
     // ==================== UI HELPER FUNCTIONS ====================
@@ -3511,26 +4016,14 @@
         // Admin logout button
         document.getElementById('sidebar-logout-btn').addEventListener('click', () => {
             if(confirm('Are you sure you want to logout?')) {
-                // Clear success message before logging out
-                document.getElementById('success-message').style.display = 'none';
-                localStorage.removeItem('userRole');
-                localStorage.removeItem('userEmail');
-                localStorage.removeItem('barangayName');
-                localStorage.removeItem('barangayId');
-                showLoginPage();
+                logout();
             }
         });
 
         // Barangay logout button
         document.getElementById('barangay-sidebar-logout-btn').addEventListener('click', () => {
             if(confirm('Are you sure you want to logout?')) {
-                // Clear success message before logging out
-                document.getElementById('success-message').style.display = 'none';
-                localStorage.removeItem('userRole');
-                localStorage.removeItem('userEmail');
-                localStorage.removeItem('barangayName');
-                localStorage.removeItem('barangayId');
-                showLoginPage();
+                logout();
             }
         });
 
@@ -3554,6 +4047,15 @@
         // Time period selector
         document.getElementById('time-period').addEventListener('change', function() {
             alert(`Loading data for: ${this.options[this.selectedIndex].text}`);
+        });
+
+        // Search functionality for users
+        document.getElementById('search-pending-users').addEventListener('input', function() {
+            filterUsersTable('pending-users-table-container', this.value);
+        });
+
+        document.getElementById('search-approved-users').addEventListener('input', function() {
+            filterUsersTable('approved-users-table-container', this.value);
         });
     }
 
@@ -3731,7 +4233,6 @@
 
     // ==================== DATA MANAGEMENT FUNCTIONS ====================
 
-    // [Previous data management functions remain the same...]
     // Simplified function to load barangay data for overview stats only
     function loadBarangayData() {
         console.log("📊 Loading barangay data for stats...");
@@ -3964,38 +4465,6 @@
             </div>
         `;
         document.getElementById('barangay-modal').classList.add('active');
-    }
-
-    // Load user data for admin
-    function loadUserData() {
-        const pendingContainer = document.getElementById('pending-users-table-container');
-        const approvedContainer = document.getElementById('approved-users-table-container');
-        
-        pendingContainer.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-        approvedContainer.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-        
-        // For demo purposes, show empty states
-        setTimeout(() => {
-            pendingContainer.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-users"></i>
-                    <h3>No Pending Users</h3>
-                    <p>There are no user registration requests pending approval.</p>
-                </div>
-            `;
-            
-            approvedContainer.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-users"></i>
-                    <h3>No Approved Users</h3>
-                    <p>There are no approved users in the system yet.</p>
-                </div>
-            `;
-            
-            // Update user accounts count
-            document.getElementById('user-accounts').textContent = 0;
-            document.getElementById('user-approved').textContent = 0;
-        }, 1000);
     }
 
     // ==================== HISTORY & DATA FUNCTIONS ====================
@@ -4279,6 +4748,22 @@
 
     function filterAllBarangaysTable(searchText) {
         const container = document.getElementById('all-barangays-table-container');
+        const table = container.querySelector('table');
+        
+        if (!table) return;
+        
+        const rows = table.querySelectorAll('tbody tr');
+        const searchLower = searchText.toLowerCase();
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchLower) ? '' : 'none';
+        });
+    }
+
+    // Search functionality for users
+    function filterUsersTable(containerId, searchText) {
+        const container = document.getElementById(containerId);
         const table = container.querySelector('table');
         
         if (!table) return;
